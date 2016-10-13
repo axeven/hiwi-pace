@@ -9,6 +9,7 @@ help:
 .PHONY: test
 test:
 	@make download
+	python3 BFS.py testbed/instances/pace16/100/BlanusaSecondSnarkGraph.gr -c 3 -r 2
 
 .PHONY: download
 download:

@@ -13,6 +13,18 @@ def read_gr_file(grfile):
     # Read from grfile and store in a suitable data structure
     # [...]
     # return graph
+    lines = []
+    with open(grfile) as file:
+        lines = file.readlines()
+    data = {}
+    for line in lines:
+        # assumes the .gr file is valid
+        if line[0] == 'c':
+            continue
+        if line[0] == 'p':
+            # need to read vertice and edges count?
+            continue
+        
     pass
 
 def perform_BFS(graph, center, radius):
