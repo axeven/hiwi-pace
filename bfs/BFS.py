@@ -30,7 +30,15 @@ def read_gr_file(grfile):
 def perform_BFS(graph, center, radius):
     # return output graph
     # [...]
+    Globalqueue=[center] ##Globalqueue will store all the vertices of the small graph
+    q=[]
+    q[0]=[center] 
+    q[1]=graph[center] ##storing all  the neighbours 
+    r=1
+    while r<=radius:
+       
     pass
+    
 
 def print_gr_file(graph, outfile):
     # Print graph to (already opened) outfile stream
