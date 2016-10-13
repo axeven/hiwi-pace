@@ -31,12 +31,17 @@ def perform_BFS(graph, center, radius):
     # return output graph
     # [...]
     Globalqueue=[center] ##Globalqueue will store all the vertices of the small graph
-    q=[]
+    q={}
     q[0]=[center] 
-    q[1]=graph[center] ##storing all  the neighbours 
     r=1
     while r<=radius:
-       
+       q[r]=[]
+       for i in  q[r-1]:
+          q[r] =list(set().union(graph[i],q[r]))
+       r=r+1
+      Globalqueue= list(set().union(q[r],Globalqueue))
+    print (Globalqueue)
+    print (q)
     pass
     
 
