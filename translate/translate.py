@@ -13,39 +13,12 @@ import argparse
 def read_uai_file(uaifile):
     # Read from uaifile and store in a suitable data structure
     lines = []
-    with open(uaifile) as file:
-        lines = file.readlines()
-        file.readlines()
-    graph = {}
-    for line in lines:
-        # assumes the .gr file is valid
-        if line[0] == 'c':
-            continue
-        if line[0] == 'p':
-            # need to read vertices and edges count?
-            continue
-        v = line.split(' ')
-        a = int(v[0])
-        b = int(v[1])
-        if a not in graph:
-            graph[a] = [b]
-        else:
-            graph[a].append(b)
-        if b not in graph:
-            graph[b] = [a]
-        else:
-            graph[b].append(a)
-    return graph
+    return lines
 
 
 def translate(graph):
     # return output graph
     # [...]
-    Globalqueue = [center]  ##Globalqueue will store all the vertices of the small graph
-    q = []
-    q[0] = [center]
-    q[1] = graph[center]  ##storing all  the neighbours
-    r = 1
     return []
 
 

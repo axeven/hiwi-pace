@@ -2,21 +2,18 @@
 help:
 	@echo "make help\n	Print this message\n"
 	@echo "make test\n	Perform automatic tests on test instances\n"
-	@echo "make download\n	Download test instances and td-validate\n"
+	@echo "make download\n	Download task instances and td-validate\n"
 	@echo "make cleanall\n	Removes downloaded and test files\n"
-	@echo "make clean\n	Removes test files\n"
+	@echo "make clean\n	Removes test output files\n"
 
-DIRS = test
-OBJS = $(wildcard $(DIRS:=/*.uai))
+TESTDIR = test
+TESTOBJS = $(wildcard $(TESTDIR:=/*.uai))
+TDVALIDATE = ./td-validate/td-validate
 
 .PHONY: test
 test:
 	@make download
-	@for file in $(OBJS); do \
-		$(b = $(basename $$file); \
-		echo $(DIRS:=test/$b.gr); \	
-	done
-	#python3 translate.py testbed/instances/pace16/100/BlanusaSecondSnarkGraph.gr
+	@./run_test.sh
 
 .PHONY: download
 download:
@@ -64,5 +61,5 @@ cleanall:
 .PHONY: clean
 clean:
 	@echo "Removing test output ..."
-	@rm -rf test
+	@rm test/*.out.gr
 
