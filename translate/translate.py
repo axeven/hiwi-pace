@@ -13,13 +13,40 @@ import argparse
 def read_uai_file(uaifile):
     # Read from uaifile and store in a suitable data structure
     lines = []
-    return lines
+    with open(uaifile) as file:
+        lines = file.readlines()
+        file.readlines()
+    graph = {}
+    index=0
+    i=0
+    count_clique=0
+    count_clique =int(lines[3])	
+    for index in range(4,4+count_clique):
+        #print (lines[index])
+        
+        v=lines[index].split(' ')
+        w=len(v)
+        v[-1] = v[-1].strip()
+        v[-1] = v[-1].strip(' ')
+        w=len(v)
+        #print ("w",w) 
+        if (w>3) :
+          graph[i]=(v[1:w])
+          i=i+1
+    print (graph)    
+        
+    return graph
 
 
 def translate(graph):
     # return output graph
     # [...]
-    return []
+    ng = {}
+    #for index in range(0,len(graph)):
+     #   ng[index+1] = graph[Globalqueue[index]]
+    ng = graph
+    return []  
+    
 
 
 def print_gr_file(graph):

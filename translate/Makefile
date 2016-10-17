@@ -3,6 +3,7 @@ help:
 	@echo "make help\n	Print this message\n"
 	@echo "make test\n	Perform automatic tests on test instances\n"
 	@echo "make download\n	Download task instances and td-validate\n"
+	@echo "make runtask\n	Translate and validate taks instances\n"
 	@echo "make cleanall\n	Removes downloaded and test files\n"
 	@echo "make clean\n	Removes test output files\n"
 
@@ -14,6 +15,11 @@ TDVALIDATE = ./td-validate/td-validate
 test:
 	@make download
 	@./run_test.sh
+
+.PHONY: runtask
+runtask:
+	@make download
+	@./run_task.sh
 
 .PHONY: download
 download:
