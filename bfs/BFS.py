@@ -49,8 +49,7 @@ def perform_BFS(graph, center, radius):
        q[r] =list(set(q[r])-set(Globalqueue)) 
        Globalqueue= list(set(q[r]).union(Globalqueue))
        r=r+1
-    print (Globalqueue)
-    print (q)
+    
     
     new_graph={}
     for i in Globalqueue:
@@ -69,14 +68,29 @@ def perform_BFS(graph, center, radius):
     ng = {}
     for index in range(0,len(new_graph)):
         ng[index+1] = new_graph[Globalqueue[index]]
+    
     return ng         
     
 
-def print_gr_file(graph, outfile):
+def print_gr_file(graph):##, ##outfile):
     # Print graph to (already opened) outfile stream
     # [...]
-     
-    pass
+    count=0
+    
+    for i in graph:
+       for index in range(0,len(graph[i])):
+            if (i<=graph[i][index]):
+                count=count+1
+    print ("p tw", len(graph),count)
+    for i in graph:
+       for index in range(0,len(graph[i])):
+            if (i<=graph[i][index]):
+                print (i, graph[i][index])
+                count=count+1 
+            else:
+                i=i	
+    print (graph)
+        
 
 def main():
     parser = argparse.ArgumentParser()
@@ -87,7 +101,7 @@ def main():
 
     graph = read_gr_file(args.grfile)
     newgraph = perform_BFS(graph, int(args.center), int(args.radius))
-    print_gr_file(newgraph,outfile)
+    print_gr_file(newgraph)
 
 if __name__ == '__main__':
     main()
