@@ -14,11 +14,21 @@ TDVALIDATE = ./td-validate/td-validate
 .PHONY: test
 test:
 	@make download
+	@if [ ! -e "td-validate/td-validate" ]; then \
+		cd td-validate; \
+		make; \
+		cd ..; \
+	fi
 	@./run_test.sh
 
 .PHONY: runtask
 runtask:
 	@make download
+	@if [ ! -e "td-validate/td-validate" ]; then \
+		cd td-validate; \
+		make; \
+		cd ..; \
+	fi
 	@./run_task.sh
 
 .PHONY: download
