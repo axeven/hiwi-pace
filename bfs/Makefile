@@ -2,14 +2,20 @@
 help:
 	@echo "make help\n	Print this message\n"
 	@echo "make test\n	Perform automatic tests on test instances\n"
-	@echo "make download\n	Download test instances and td-validate\n"
+	@echo "make runtask\n	Perform BFS on task instances\n"
+	@echo "make download\n	Download task instances and td-validate\n"
 	@echo "make cleanall\n	Removes downloaded and test files\n"
 	@echo "make clean\n	Removes test files\n"
 
 .PHONY: test
 test:
 	@make download
-	python3 BFS.py testbed/instances/pace16/100/BlanusaSecondSnarkGraph.gr -c 3 -r 2
+	@if [ ! -e "td-validate/td-validate" ]; then \
+		cd td-validate; \
+		make; \
+		cd ..; \
+	fi
+	@./run_test.sh
 
 .PHONY: download
 download:
@@ -30,10 +36,10 @@ cleanall:
 	@echo "Removing downloaded and test files ..."
 	@rm -rf td-validate
 	@rm -rf testbed
-	@rm -rf test
+	@rm test/*.out.gr
 
 .PHONY: clean
 clean:
 	@echo "Removing test files ..."
-	@rm -rf test
+	@rm test/*.out.gr
 

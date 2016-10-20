@@ -90,8 +90,7 @@ def print_gr_file(graph):##, ##outfile):
                 print (i, graph[i][index])
                 count=count+1 
             else:
-                i=i	
-    
+                i=i
         
 
 def main():
