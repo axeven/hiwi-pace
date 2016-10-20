@@ -4,23 +4,24 @@ VALIDATE=./td-validate/td-validate
 
 NUM_PASSED=0
 NUM_ALL=0
+MAINPATH=""
 
 do_test()
 {
-for uaifile in input/$1/*.uai;
+for uaifile in $MAINPATH"input/"$1/*.uai;
 do
-  if [ ! -d "output/$1" ]
+  if [ ! -d $MAINPATH"output/$1" ]
   then
-    mkdir "output/$1";
+    mkdir $MAINPATH"output/$1";
   fi
   temp1=${uaifile%%.uai}
-  temp2=${temp1##input}
+  temp2=${temp1##$MAINPATH"input"}
   echo "Translating $uaifile";
-  python3 uai2gr.py "$uaifile" > "output$temp2.gr";
+  python3 uai2gr.py "$uaifile" > $MAINPATH"output$temp2.gr";
 done
 echo
 echo "Validating outputs ... "
-for grfile in output/$1/*.gr;
+for grfile in $MAINPATH"output/"$1/*.gr;
 do
   file="${grfile%%.out.gr}"
   NUM_ALL=$[$NUM_ALL + 1]
