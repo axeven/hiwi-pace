@@ -24,16 +24,14 @@ def read_uai_file(uaifile):
     for index in range(4,4+count_clique):
         #print (lines[index])
         
-        v=lines[index].split(' ')
-        w=len(v)
+        v=lines[index].strip().split(' ')
         v[-1] = v[-1].strip()
-        v[-1] = v[-1].strip(' ')
         w=len(v)
         #print ("w",w) 
         if (w>2) :
           graph[i]=(v[1:w])
           i=i+1
-        
+    print(graph)
     return graph,int(lines[1]) 
 
 def translate(graph):
