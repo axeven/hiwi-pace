@@ -47,7 +47,7 @@ do
         NUM_PASSED=$[$NUM_PASSED + 1]
       else
         tput setaf 1;
-        echo "FAIL" "$file" "(invalid result)";
+        echo "FAIL" "$file" "(different result)";
       fi
     fi
   else
