@@ -13,7 +13,7 @@ def read_gr_file(grfile):
     # Read from grfile and store in a suitable data structure
     lines = []
     with open(grfile) as file:
-        lines = file.readlines()
+      lines = file.readlines()
     graph = {}
     for line in lines:
         # assumes the .gr file is valid
@@ -76,12 +76,14 @@ def print_gr_file(graph):##, ##outfile):
     # Print graph to (already opened) outfile stream
     # [...]
     count=0
-    
+    print ("c Derived via BFS in input_grfilename")
+    print ("c whose md5sum is md5sum_of_input_grfile")
+    print ("c Induced subgraph with c center: center c radius: radius")
     for i in graph:
        for index in range(0,len(graph[i])):
             if (i<=graph[i][index]):
                 count=count+1
-    print ("p tw", len(graph),count)
+    print ("p tw",len(graph),count)
     for i in graph:
        for index in range(0,len(graph[i])):
             if (i<=graph[i][index]):

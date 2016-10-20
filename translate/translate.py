@@ -30,29 +30,54 @@ def read_uai_file(uaifile):
         v[-1] = v[-1].strip(' ')
         w=len(v)
         #print ("w",w) 
-        if (w>3) :
+        if (w>2) :
           graph[i]=(v[1:w])
           i=i+1
-    print (graph)    
         
-    return graph
-
+    return graph,int(lines[1]) 
 
 def translate(graph):
     # return output graph
     # [...]
     ng = {}
-    #for index in range(0,len(graph)):
-     #   ng[index+1] = graph[Globalqueue[index]]
     ng = graph
-    return []  
+    new_graph={}
+    count=0
+    i=0
+    j=0
+    
+    for index in range(0,len(ng)):
+        new_graph[count]=[]
+        ng[index]=sorted(ng[index])
+        if len(ng[index])<=2:
+           new_graph[count]= ng[index]
+           count=count+1
+           
+        else:
+           while i<len(ng[index]):
+               
+               
+               for j in range(i+1,len(ng[index])):
+                   new_graph[count]=[]
+                   new_graph[count].append(ng[index][i])
+                   new_graph[count].append(ng[index][j])
+                   count= count+1 
+                   
+                   
+               i=i+1                
+    return new_graph  
     
 
 
-def print_gr_file(graph):
+def print_gr_file(graph,count):
     # Print graph to (already opened) outfile stream
     # [...]
-    print('Not yet implemented')
+    ##count = set( val for dic in graph for val in dic.values())
+    print ("p tw",count,len(graph))
+    for i in graph:
+       for index in range(0,len(graph[i])):
+            print (int(graph[i][index])+1,int(graph[i][index+1])+1)
+            break
 
 
 def main():
@@ -60,9 +85,9 @@ def main():
     parser.add_argument("uaifile", help=".uai file containing the input graph")
     args = parser.parse_args()
 
-    graph = read_uai_file(args.uaifile)
+    graph, count = read_uai_file(args.uaifile)
     grgraph = translate(graph)
-    print_gr_file(grgraph)
+    print_gr_file(grgraph,count)
 
 if __name__ == '__main__':
     main()
