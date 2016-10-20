@@ -8,7 +8,7 @@ Licensed under GPLv3.
 
 import os
 import argparse
-
+import itertools
 
 def read_uai_file(uaifile):
     # Read from uaifile and store in a suitable data structure
@@ -41,30 +41,30 @@ def translate(graph):
     # [...]
     ng = {}
     ng = graph
-    new_graph={}
+    new_graph=[]
     count=0
     i=0
     j=0
     
     for index in range(0,len(ng)):
-        new_graph[count]=[]
+        #new_graph[count]=[]
         ng[index]=sorted(ng[index])
-        if len(ng[index])<=2:
-           new_graph[count]= ng[index]
-           count=count+1
-           
+        if len(ng[index])<=1:
+           #new_graph[count]= ng[index]
+           #count=count+1
+           continue
         else:
+           i=0
            while i<len(ng[index]):
-               
-               
-               for j in range(i+1,len(ng[index])):
-                   new_graph[count]=[]
+            for j in range(i+1,len(ng[index])):
+                   new_graph.append([])
                    new_graph[count].append(ng[index][i])
                    new_graph[count].append(ng[index][j])
-                   count= count+1 
+                   count= count+1  
                    
-                   
-               i=i+1                
+                   #print (new_graph)                             
+            i=i+1
+    new_graph=list(new_graph for new_graph,_ in itertools.groupby(new_graph))               
     return new_graph  
     
 
@@ -74,7 +74,7 @@ def print_gr_file(graph,count):
     # [...]
     ##count = set( val for dic in graph for val in dic.values())
     print ("p tw",count,len(graph))
-    for i in graph:
+    for i in range(0,len(graph)):
        for index in range(0,len(graph[i])):
             print (int(graph[i][index])+1,int(graph[i][index+1])+1)
             break
