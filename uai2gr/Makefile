@@ -24,12 +24,6 @@ test:
 
 .PHONY: runtask
 runtask:
-	@make downloadtask
-	@if [ ! -e "td-validate/td-validate" ]; then \
-		cd td-validate; \
-		make; \
-		cd ..; \
-	fi
 	@./run_task.sh
 
 .PHONY: download
