@@ -31,7 +31,6 @@ def read_uai_file(uaifile):
         if (w>2) :
           graph[i]=(v[1:w])
           i=i+1
-    print(graph)
     return graph,int(lines[1]) 
 
 def translate(graph):
