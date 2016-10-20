@@ -16,7 +16,7 @@ do
   temp1=${uaifile%%.uai}
   temp2=${temp1##input}
   echo "Translating $uaifile";
-  python3 translate.py "$uaifile" > "output$temp2.gr";
+  python3 uai2gr.py "$uaifile" > "output$temp2.gr";
 done
 echo
 echo "Validating outputs ... "

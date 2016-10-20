@@ -2,7 +2,8 @@
 help:
 	@echo "make help\n	Print this message\n"
 	@echo "make test\n	Perform automatic tests on test instances\n"
-	@echo "make download\n	Download task instances and td-validate\n"
+	@echo "make download\n	Download td-validate\n"
+	@echo "make downloadtask\n	Download task instances and td-validate\n"
 	@echo "make runtask\n	Translate and validate taks instances\n"
 	@echo "make cleanall\n	Removes downloaded and test files\n"
 	@echo "make clean\n	Removes test output files\n"
@@ -23,7 +24,7 @@ test:
 
 .PHONY: runtask
 runtask:
-	@make download
+	@make downloadtask
 	@if [ ! -e "td-validate/td-validate" ]; then \
 		cd td-validate; \
 		make; \
@@ -33,6 +34,14 @@ runtask:
 
 .PHONY: download
 download:
+	@if [ ! -d "td-validate" ]; then \
+		echo "Downloading td-validate ..."; \
+		git clone https://github.com/holgerdell/td-validate td-validate; \
+	fi
+
+.PHONY: downloadtask
+downloadtask:
+	@make download
 	@if [ ! -d "input" ]; then \
 		mkdir input ;\
 	fi
@@ -62,10 +71,6 @@ download:
 		echo "Extracting instances ... (3/3)"; \
 		mkdir input/input3; \
 		tar -xzf input/input3.tgz -C input/input3; \
-	fi
-	@if [ ! -d "td-validate" ]; then \
-		echo "Downloading td-validate ..."; \
-		git clone https://github.com/holgerdell/td-validate td-validate; \
 	fi
 
 .PHONY: cleanall

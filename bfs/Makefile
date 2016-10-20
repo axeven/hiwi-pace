@@ -24,18 +24,11 @@ download:
 	else \
 		echo "Directory td-validate exists, not downloading ..."; \
 	fi
-	@if [ ! -d "testbed" ]; then \
-		git clone  https://github.com/holgerdell/PACE-treewidth-testbed.git testbed; \
-	else \
-		echo "Directory testbed exists, not downloading ..."; \
-	fi
-
 
 .PHONY: cleanall
 cleanall:
 	@echo "Removing downloaded and test files ..."
 	@rm -rf td-validate
-	@rm -rf testbed
 	@rm test/*.out.gr
 
 .PHONY: clean

@@ -9,7 +9,7 @@ do_test()
 {
 for uaifile in test/*.uai;
 do
-  python3 translate.py "$uaifile" > "$uaifile.out.gr";
+  python3 uai2gr.py "$uaifile" > "$uaifile.out.gr";
 done
 for grfile in test/*.out.gr;
 do

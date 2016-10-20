@@ -8,102 +8,116 @@ Licensed under GPLv3.
 
 import os
 import argparse
+import random
+import ntpath
+import sys
 
 def read_gr_file(grfile):
-    # Read from grfile and store in a suitable data structure
-    lines = []
-    with open(grfile) as file:
-      lines = file.readlines()
+    # Read from grfile or stdin and store in a suitable data structure
+    if grfile is None:
+        file = sys.stdin
+    else:
+        file = open(grfile)
     graph = {}
-    for line in lines:
+    for line in file:
         # assumes the .gr file is valid
         if line[0] == 'c':
             continue
         if line[0] == 'p':
             # need to read vertice and edges count?
+            temp = line.split(' ')
+            vcount = int(temp[2])
             continue
         v = line.split(' ')
         a = int(v[0])
         b = int(v[1])
         if a not in graph:
-            graph[a] = [b]
+            graph[a] = set([b])
         else:
-            graph[a].append(b)
+            graph[a].add(b)
         if b not in graph:
-            graph[b] = [a]
+            graph[b] = set([a])
         else:
-            graph[b].append(a)
-    return graph
+            graph[b].add(a)
+    file.close()
+    return graph, vcount
+
 
 def perform_BFS(graph, center, radius):
     # return output graph
     # [...]
-    Globalqueue=[center] ##Globalqueue will store all the vertices of the small graph
-    q={}
-    q[0]=[center] 
-    r=1
-    while r<=radius:
-       q[r]=[]
-       for i in  q[r-1]:
-          q[r] =list(set(graph[i]).union(q[r]))
-       q[r] =list(set(q[r])-set(Globalqueue)) 
-       Globalqueue= list(set(q[r]).union(Globalqueue))
-       r=r+1
-    
-    
-    new_graph={}
-    for i in Globalqueue:
-       new_graph[i]=graph[i]
-       new_graph[i]=list(set(new_graph[i]).intersection(Globalqueue)) 
-    Globalqueue=sorted(Globalqueue)
-    indexmap={}
-    idx=1
-    
-    for i in Globalqueue:
-       indexmap[i]=idx
-       idx += 1
-    for i in new_graph:
-        for index in range(0,len(new_graph[i])):          
-           new_graph[i][index]= indexmap[new_graph[i][index]]
-    ng = {}
-    for index in range(0,len(new_graph)):
-        ng[index+1] = new_graph[Globalqueue[index]]
-    
-    return ng         
-    
+    Globalqueue = set([center])  ##Globalqueue will store all the vertices of the small graph
+    q = {}
+    q[0] = set([center])
+    r = 1
+    while r <= radius:
+        q[r] = set()
+        for i in q[r - 1]:
+            q[r] = graph[i].union(q[r])
+        q[r] = q[r] - Globalqueue
+        Globalqueue = q[r].union(Globalqueue)
+        r = r + 1
 
-def print_gr_file(graph):##, ##outfile):
+    new_graph = {}
+    for i in Globalqueue:
+        new_graph[i] = graph[i]
+        new_graph[i] = new_graph[i].intersection(Globalqueue)
+    Globalqueue = sorted(list(Globalqueue))
+    indexmap = {}
+    idx = 1
+
+    for i in Globalqueue:
+        indexmap[i] = idx
+        idx += 1
+    ng = {}
+    for index in range(0, len(new_graph)):
+        ng[index + 1] = set([])
+        for j in new_graph[Globalqueue[index]]:
+            ng[index + 1].add(indexmap[j])
+    return ng
+
+
+def print_gr_file(graph, file, center, radius):  ##, ##outfile):
     # Print graph to (already opened) outfile stream
     # [...]
-    count=0
-    print ("c Derived via BFS in input_grfilename")
-    print ("c whose md5sum is md5sum_of_input_grfile")
-    print ("c Induced subgraph with c center: center c radius: radius")
+    count = 0
+    if file is None:
+        filename = "unknown file"
+    else:
+        filename = ntpath.basename(file)
+    print("c Derived via BFS in " + filename)
+    print("c Induced subgraph with")
+    print("c center: " + str(center))
+    print("c radius: " + str(radius))
     for i in graph:
-       for index in range(0,len(graph[i])):
-            if (i<=graph[i][index]):
-                count=count+1
-    print ("p tw",len(graph),count)
+        temp = sorted(list(graph[i]))
+        for index in range(0, len(graph[i])):
+            if (i <= temp[index]):
+                count = count + 1
+    print("p tw", len(graph), count)
     for i in graph:
-       for index in range(0,len(graph[i])):
-            if (i<=graph[i][index]):
-                print (i, graph[i][index])
-                count=count+1 
+        temp = sorted(list(graph[i]))
+        for index in range(0, len(graph[i])):
+            if (i <= temp[index]):
+                print(i, temp[index])
+                count = count + 1
             else:
-                i=i
-        
+                i = i
+
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("grfile", help=".gr file containing the input graph")
-    parser.add_argument("--center", "-c", help="start the BFS from this vertex", nargs='?')
-    parser.add_argument("--radius", "-r", help="perform BFS up to this depth")
+    parser.add_argument("grfile", help=".gr file containing the input graph", nargs='?')
+    parser.add_argument("--center", "-c", help="start the BFS from this vertex", nargs='?', type=int)
+    parser.add_argument("--radius", "-r", help="perform BFS up to this depth", type=int)
     args = parser.parse_args()
-
-    graph = read_gr_file(args.grfile)
-    newgraph = perform_BFS(graph, int(args.center), int(args.radius))
-    print_gr_file(newgraph)
+    graph, N = read_gr_file(args.grfile)
+    if args.radius is None:
+        args.radius = random.randrange(1, N)
+    if args.center is None:
+        args.center = random.randrange(1, N + 1)
+    newgraph = perform_BFS(graph, args.center, args.radius)
+    print_gr_file(newgraph, args.grfile, args.center, args.radius)
 
 if __name__ == '__main__':
     main()
-
