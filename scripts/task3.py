@@ -1,3 +1,7 @@
+#!/usr/bin/env python3.5
+
+
+
 import os
 import sys
 import glob
@@ -6,7 +10,7 @@ import ntpath
 import shutil
 
 
-"Getting the path of the file"
+##"Getting the path of the file"
 path1=os.path.dirname(os.path.abspath(__file__))
 print (path1)  
 
