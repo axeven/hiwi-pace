@@ -53,15 +53,17 @@ def perform_BFS(graph, center, radius):
     while r <= radius:
         q[r] = set()
         for i in q[r - 1]:
-            q[r] = graph[i].union(q[r])
+            if i in graph:
+                q[r] = graph[i].union(q[r])
         q[r] = q[r] - Globalqueue
         Globalqueue = q[r].union(Globalqueue)
         r = r + 1
 
     new_graph = {}
     for i in Globalqueue:
-        new_graph[i] = graph[i]
-        new_graph[i] = new_graph[i].intersection(Globalqueue)
+        if i in graph:
+            new_graph[i] = graph[i]
+            new_graph[i] = new_graph[i].intersection(Globalqueue)
     Globalqueue = sorted(list(Globalqueue))
     indexmap = {}
     idx = 1
@@ -71,9 +73,10 @@ def perform_BFS(graph, center, radius):
         idx += 1
     ng = {}
     for index in range(0, len(new_graph)):
-        ng[index + 1] = set([])
-        for j in new_graph[Globalqueue[index]]:
-            ng[index + 1].add(indexmap[j])
+        if Globalqueue[index] in new_graph:
+            ng[index + 1] = set([])
+            for j in new_graph[Globalqueue[index]]:
+                ng[index + 1].add(indexmap[j])
     return ng
 
 
