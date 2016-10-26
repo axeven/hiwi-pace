@@ -44,13 +44,14 @@ def read_gr_file(grfile):
             graph[b].setall(False)
         graph[b][a] = True
     file.close()
-    return graph, ecount
+    return graph, vcount, ecount
 
 
 def perform_BFS(graph, center, radius):
     added_to_queue = bitarray.bitarray(len(graph))
     added_to_queue.setall(False)
     queue = [center]
+    added_to_queue[center] = True
     r = 1
     new_vertice_count = 1
     while r <= radius:
@@ -77,25 +78,26 @@ def perform_BFS(graph, center, radius):
     for i in range(1, len(added_to_queue)):
         if added_to_queue[i]:
             new_graph[x] = bitarray.bitarray(new_vertice_count + 1)
+            new_graph[x].setall(False)
             y = 1
             for j in range(1, len(added_to_queue)):
                 if added_to_queue[j]:
                     if graph[i][j]:
-                        new_graph[x][y] = graph[i][j]
+                        new_graph[x][y] = True
                         new_e_count += 1
                     y += 1
             x += 1
-    return new_graph, new_e_count
+    return new_graph, int(new_e_count / 2)
 
 
 def print_gr_file(graph, ecount, header=None):
     if header is not None:
         print(header)
-    print("p tw", len(graph), ecount)
+    print("p tw", len(graph) - 1, ecount)
     for i in range(1, len(graph)):
         for j in range(i + 1, len(graph)):
             if graph[i][j]:
-                print(str(i) + ' ' + str(j))
+                print(str(i), str(j))
 
 
 def get_header(file, center, radius):
@@ -105,8 +107,7 @@ def get_header(file, center, radius):
         filename = ntpath.basename(file)
     return "c Derived via BFS in " + filename \
            + "\nc Induced subgraph with\nc center: " \
-           + str(center) + "\nc radius: " \
-           + str(radius) + "\n"
+           + str(center) + "\nc radius: " + str(radius)
 
 
 def main():
@@ -115,11 +116,11 @@ def main():
     parser.add_argument("--center", "-c", help="start the BFS from this vertex", nargs='?', type=int)
     parser.add_argument("--radius", "-r", help="perform BFS up to this depth", type=int)
     args = parser.parse_args()
-    graph, E = read_gr_file(args.grfile)
+    graph, V, E = read_gr_file(args.grfile)
     if args.radius is None:
-        args.radius = random.randrange(1, N)
+        args.radius = random.randrange(1, V)
     if args.center is None:
-        args.center = random.randrange(1, N + 1)
+        args.center = random.randrange(1, V + 1)
     newgraph, E = perform_BFS(graph, args.center, args.radius)
     print_gr_file(newgraph, E, get_header(args.grfile, args.center, args.radius))
 
