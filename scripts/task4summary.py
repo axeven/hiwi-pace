@@ -25,29 +25,37 @@ def create_summary(input_folder, output_folder, output_file):
     pattern = re.compile(r'c width = (\d+), time = (\d+\.*\d*)')
     summary = []
     for file in get_file_list(output_folder, ext='gr'):
+        width = -1
+        time = -1
         with open(output_folder + file, 'r') as f:
             for line in f:
-                match = pattern.match(line)
-                if match:
-                    width = int(match.group(1))
-                    time = float(match.group(2))
-                    basename = os.path.basename(file)
-                    with open(input_folder + file, 'r') as inp:
-                        for inp_line in inp:
-                            if inp_line.startswith('p'):
-                                temp = inp_line.split(' ')
-                                vertice = int(temp[2])
-                                edge = int(temp[3])
-                                row = {
-                                    'instance': basename,
-                                    '#vertices': vertice,
-                                    '#edges': edge,
-                                    'tree width': width,
-                                    'computation time': time
-                                }
-                                summary.append(row)
-                                break
-                break
+                if time == -1:
+                    match = pattern.match(line)
+                    if match:
+                        time = float(match.group(2))
+                        if width != -1:
+                            break
+                if width == -1 and line.startswith('s td'):
+                    width = int(line.split()[3]) - 1
+                    if time != -1:
+                        break
+        with open(input_folder + file, 'r') as inp:
+            basename = os.path.basename(file)
+            for inp_line in inp:
+                if inp_line.startswith('p'):
+                    temp = inp_line.split(' ')
+                    vertice = int(temp[2])
+                    edge = int(temp[3])
+                    row = {
+                        'instance': basename,
+                        '#vertices': vertice,
+                        '#edges': edge,
+                        'tree width': width,
+                        'computation time': time
+                    }
+                    summary.append(row)
+                    break
+
     if len(summary) == 0:
         print("Output folder is empty")
         return
