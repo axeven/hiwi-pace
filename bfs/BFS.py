@@ -8,9 +8,11 @@ Licensed under GPLv3.
 
 import os
 import argparse
+import bitarray
 import random
 import ntpath
 import sys
+
 
 def read_gr_file(grfile):
     # Read from grfile or stdin and store in a suitable data structure
@@ -18,7 +20,7 @@ def read_gr_file(grfile):
         file = sys.stdin
     else:
         file = open(grfile)
-    graph = {}
+    graph = []
     for line in file:
         # assumes the .gr file is valid
         if line[0] == 'c':
@@ -27,86 +29,84 @@ def read_gr_file(grfile):
             # need to read vertice and edges count?
             temp = line.split(' ')
             vcount = int(temp[2])
+            ecount = int(temp[3])
+            graph = [None for i in range(vcount + 1)]
             continue
         v = line.split(' ')
         a = int(v[0])
         b = int(v[1])
-        if a not in graph:
-            graph[a] = set([b])
-        else:
-            graph[a].add(b)
-        if b not in graph:
-            graph[b] = set([a])
-        else:
-            graph[b].add(a)
+        if graph[a] is None:
+            graph[a] = bitarray.bitarray(vcount + 1)
+            graph[a].setall(False)
+        graph[a][b] = True
+        if graph[b] is None:
+            graph[b] = bitarray.bitarray(vcount + 1)
+            graph[b].setall(False)
+        graph[b][a] = True
     file.close()
-    return graph, vcount
+    return graph, ecount
 
 
 def perform_BFS(graph, center, radius):
-    # return output graph
-    # [...]
-    Globalqueue = set([center])  ##Globalqueue will store all the vertices of the small graph
-    q = {}
-    q[0] = set([center])
+    added_to_queue = bitarray.bitarray(len(graph))
+    added_to_queue.setall(False)
+    queue = [center]
     r = 1
+    new_vertice_count = 1
     while r <= radius:
-        q[r] = set()
-        for i in q[r - 1]:
-            if i in graph:
-                for j in graph[i]:
-                    if j not in Globalqueue:
-                        q[r].add(j)
-                        Globalqueue.add(j)
-        r = r + 1
+        next_queue = []
+        for q in queue:
+            for i in range(1, len(graph)):
+                if graph[q][i] and not added_to_queue[i]:
+                    next_queue.append(i)
+                    added_to_queue[i] = True
+                    new_vertice_count += 1
+        queue = next_queue
+        r += 1
+        if len(queue) == 0:
+            # the case when the radius is bigger than the sub graph
+            break
 
-    new_graph = {}
-    for i in Globalqueue:
-        if i in graph:
-            new_graph[i] = graph[i]
-            new_graph[i] = new_graph[i].intersection(Globalqueue)
-    Globalqueue = sorted(list(Globalqueue))
-    indexmap = {}
-    idx = 1
+    if new_vertice_count == len(graph) - 1:  # minus one because graph[0] padding
+        # the case when the graph is connected and the radius is bigger than the graph
+        return graph
 
-    for i in Globalqueue:
-        indexmap[i] = idx
-        idx += 1
-    ng = {}
-    for index in range(0, len(new_graph)):
-        if Globalqueue[index] in new_graph:
-            ng[index + 1] = set([])
-            for j in new_graph[Globalqueue[index]]:
-                ng[index + 1].add(indexmap[j])
-    return ng
+    new_graph = [None for i in range(new_vertice_count + 1)]
+    x = 1
+    new_e_count = 0
+    for i in range(1, len(added_to_queue)):
+        if added_to_queue[i]:
+            new_graph[x] = bitarray.bitarray(new_vertice_count + 1)
+            y = 1
+            for j in range(1, len(added_to_queue)):
+                if added_to_queue[j]:
+                    if graph[i][j]:
+                        new_graph[x][y] = graph[i][j]
+                        new_e_count += 1
+                    y += 1
+            x += 1
+    return new_graph, new_e_count
 
 
-def print_gr_file(graph, file, center, radius):  ##, ##outfile):
-    # Print graph to (already opened) outfile stream
-    # [...]
-    count = 0
+def print_gr_file(graph, ecount, header=None):
+    if header is not None:
+        print(header)
+    print("p tw", len(graph), ecount)
+    for i in range(1, len(graph)):
+        for j in range(i + 1, len(graph)):
+            if graph[i][j]:
+                print(str(i) + ' ' + str(j))
+
+
+def get_header(file, center, radius):
     if file is None:
         filename = "unknown file"
     else:
         filename = ntpath.basename(file)
-    print("c Derived via BFS in " + filename)
-    print("c Induced subgraph with")
-    print("c center: " + str(center))
-    print("c radius: " + str(radius))
-    for i in graph:
-        temp = sorted(list(graph[i]))
-        for index in range(0, len(graph[i])):
-            if (i <= temp[index]):
-                count = count + 1
-    print("p tw", len(graph), count)
-    for i in graph:
-        temp = sorted(list(graph[i]))
-        for index in range(0, len(graph[i])):
-            if (i <= temp[index]):
-                print(i, temp[index])
-                count = count + 1
-            else:
-                i = i
+    return "c Derived via BFS in " + filename \
+           + "\nc Induced subgraph with\nc center: " \
+           + str(center) + "\nc radius: " \
+           + str(radius) + "\n"
 
 
 def main():
@@ -115,13 +115,14 @@ def main():
     parser.add_argument("--center", "-c", help="start the BFS from this vertex", nargs='?', type=int)
     parser.add_argument("--radius", "-r", help="perform BFS up to this depth", type=int)
     args = parser.parse_args()
-    graph, N = read_gr_file(args.grfile)
+    graph, E = read_gr_file(args.grfile)
     if args.radius is None:
         args.radius = random.randrange(1, N)
     if args.center is None:
         args.center = random.randrange(1, N + 1)
-    newgraph = perform_BFS(graph, args.center, args.radius)
-    print_gr_file(newgraph, args.grfile, args.center, args.radius)
+    newgraph, E = perform_BFS(graph, args.center, args.radius)
+    print_gr_file(newgraph, E, get_header(args.grfile, args.center, args.radius))
+
 
 if __name__ == '__main__':
     main()
