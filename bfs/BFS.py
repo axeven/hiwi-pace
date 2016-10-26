@@ -54,9 +54,10 @@ def perform_BFS(graph, center, radius):
         q[r] = set()
         for i in q[r - 1]:
             if i in graph:
-                q[r] = graph[i].union(q[r])
-        q[r] = q[r] - Globalqueue
-        Globalqueue = q[r].union(Globalqueue)
+                for j in graph[i]:
+                    if j not in Globalqueue:
+                        q[r].add(j)
+                        Globalqueue.add(j)
         r = r + 1
 
     new_graph = {}
