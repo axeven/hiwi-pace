@@ -30,25 +30,19 @@ def read_gr_file(grfile):
             temp = line.split(' ')
             vcount = int(temp[2])
             ecount = int(temp[3])
-            graph = [None for i in range(vcount + 1)]
+            graph = [[] for i in range(vcount + 1)]
             continue
         v = line.split(' ')
         a = int(v[0])
         b = int(v[1])
-        if graph[a] is None:
-            graph[a] = bitarray.bitarray(vcount + 1)
-            graph[a].setall(False)
-        graph[a][b] = True
-        if graph[b] is None:
-            graph[b] = bitarray.bitarray(vcount + 1)
-            graph[b].setall(False)
-        graph[b][a] = True
+        graph[a].append(b)
+        graph[b].append(a)
     file.close()
     return graph, vcount, ecount
 
 
-def perform_BFS(graph, center, radius):
-    added_to_queue = bitarray.bitarray(len(graph))
+def perform_BFS(graph, V, E, center, radius):
+    added_to_queue = bitarray.bitarray(V + 1)  # added_to_queue[0] is a padding
     added_to_queue.setall(False)
     queue = [center]
     added_to_queue[center] = True
@@ -57,8 +51,8 @@ def perform_BFS(graph, center, radius):
     while r <= radius:
         next_queue = []
         for q in queue:
-            for i in range(1, len(graph)):
-                if graph[q][i] and not added_to_queue[i]:
+            for i in graph[q]:
+                if not added_to_queue[i]:
                     next_queue.append(i)
                     added_to_queue[i] = True
                     new_vertice_count += 1
@@ -68,26 +62,26 @@ def perform_BFS(graph, center, radius):
             # the case when the radius is bigger than the sub graph
             break
 
-    if new_vertice_count == len(graph) - 1:  # minus one because graph[0] padding
+    if new_vertice_count == V:
         # the case when the graph is connected and the radius is bigger than the graph
-        return graph
+        return graph, V, E
 
-    new_graph = [None for i in range(new_vertice_count + 1)]
-    x = 1
-    new_e_count = 0
+    new_label = {}
+    old_label = [-1]  # padding
+    idx = 1
     for i in range(1, len(added_to_queue)):
         if added_to_queue[i]:
-            new_graph[x] = bitarray.bitarray(new_vertice_count + 1)
-            new_graph[x].setall(False)
-            y = 1
-            for j in range(1, len(added_to_queue)):
-                if added_to_queue[j]:
-                    if graph[i][j]:
-                        new_graph[x][y] = True
-                        new_e_count += 1
-                    y += 1
-            x += 1
-    return new_graph, int(new_e_count / 2)
+            new_label[i] = idx
+            old_label.append(i)
+            idx += 1
+    new_graph = [[] for i in range(new_vertice_count + 1)]
+    new_e_count = 0
+    for i in range(1, new_vertice_count + 1):
+        for j in graph[old_label[i]]:
+            if added_to_queue[j]:
+                new_graph[i].append(new_label[j])
+                new_e_count += 1
+    return new_graph, new_vertice_count, int(new_e_count / 2)
 
 
 def print_gr_file(graph, ecount, header=None):
@@ -95,8 +89,8 @@ def print_gr_file(graph, ecount, header=None):
         print(header)
     print("p tw", len(graph) - 1, ecount)
     for i in range(1, len(graph)):
-        for j in range(i + 1, len(graph)):
-            if graph[i][j]:
+        for j in graph[i]:
+            if j > i:
                 print(str(i), str(j))
 
 
@@ -121,7 +115,7 @@ def main():
         args.radius = random.randrange(1, V)
     if args.center is None:
         args.center = random.randrange(1, V + 1)
-    newgraph, E = perform_BFS(graph, args.center, args.radius)
+    newgraph, V, E = perform_BFS(graph, V, E, args.center, args.radius)
     print_gr_file(newgraph, E, get_header(args.grfile, args.center, args.radius))
 
 
