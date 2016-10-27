@@ -13,6 +13,35 @@ import sys
 from bitarray import bitarray
 
 
+class Component:
+    def __init__(self, container_size):
+        self.graph = [[] for i in range(container_size + 1)]
+        self.members = bitarray(container_size + 1)
+        self.members.setall(False)
+        self.count = 0
+
+    def add_vertice(self, v):
+        self.members[v] = True
+        self.count += 1
+
+    def __gt__(self, other):
+        return self.count > other.count
+
+    def __contains__(self, item):
+        return self.members[item]
+
+    def __getitem__(self, item):
+        return self.graph[item]
+
+    def __setitem__(self, key, value):
+        self.graph[key] = value
+
+    def __delitem__(self, key):
+        pass
+
+    def __str__(self):
+        return str(self.graph) + '\n' + str(self.members) + '\n' + str(self.count)
+
 def read_gr_file(grfile):
     # Read from grfile or stdin and store in a suitable data structure
     if grfile is None:
@@ -51,7 +80,7 @@ def print_gr_file(graph, ecount, header=None):
 
 
 def remove_edges_on_degree_one_vertices(graph, V, E):
-    print('Removing degree one ...')
+    # print('Removing degree one ...')
     queue = []
     added_to_queue = bitarray(V + 1)  # index 0 is a padding
     for i in range(1, V + 1):
@@ -73,41 +102,37 @@ def remove_edges_on_degree_one_vertices(graph, V, E):
 
 
 def get_largest_component(graph, vcount):
-    print('Getting largest component ...')
-    queue = []
+    # print('Getting largest component ...')
     added_to_queue = bitarray(vcount + 1)
     added_to_queue.setall(False)
     added_to_queue_count = 0
-    max_component = []
-    max_component_members = bitarray(vcount+1)
-    max_component_members.setall(False)
-    max_component_members_count = 0
+    max_component = Component(vcount)
     for u in range(1, vcount + 1):
         if not added_to_queue[u]:
-            queue.append(u)
-            component = [[] for i in range(vcount + 1)]
-            component_members = bitarray(vcount+1)
-            component_members.setall(False)
-            component_members[u] = True
-            component_members_count = 1
+            queue = [u]
+            next_queue = []
+            component = Component(vcount)
+            component.add_vertice(u)
             added_to_queue[u] = True
             added_to_queue_count += 1
             while len(queue) != 0:
-                pop = queue[0]
-                queue = queue[1:]
-                for v in graph[pop]:
-                    if not component_members[v]:
-                        queue.append(v)
-                        added_to_queue[v] = True
-                        added_to_queue_count += 1
-                        component_members[v] = True
-                        component_members_count += 1
-                component[pop] = graph[pop]
-            if component_members_count > max_component_members_count:
+                next_queue = []
+                for q in queue:
+                    for v in graph[q]:
+                        if v not in component:
+                            next_queue.append(v)
+                            added_to_queue[v] = True
+                            added_to_queue_count += 1
+                            component.add_vertice(v)
+                    component[q] = graph[q]
+                queue = next_queue
+            if component > max_component:
                 max_component = component
-                max_component_members = component_members
-                max_component_members_count = component_members_count
-    return max_component, max_component_members, component_members_count, int(sum(len(vs) for vs in max_component) / 2)
+                if max_component.count > vcount / 2:
+                    # if more than half of vertices is in one component
+                    # then that component is definitely the largest one
+                    break
+    return max_component.graph, max_component.members, max_component.count, int(sum(len(vs) for vs in max_component) / 2)
 
 
 def relabel_graph(graph, selected_vertices):
