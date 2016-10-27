@@ -29,16 +29,16 @@ download:
 cleanall:
 	@echo "Removing downloaded and test files ..."
 	@rm -rf td-validate
-	@rm test/clean/*.out.gr
-	@rm test/dirty/*.out.gr
-	@rm test/clean/*.gr.out
-	@rm test/dirty/*.gr.out
+	@rm -f test/clean/*.out.gr
+	@rm -f test/dirty/*.out.gr
+	@rm -f test/clean/*.gr.out
+	@rm -f test/dirty/*.gr.out
 
 .PHONY: clean
 clean:
 	@echo "Removing test files ..."
-	@rm test/clean/*.out.gr
-	@rm test/dirty/*.out.gr
-	@rm test/clean/*.gr.out
-	@rm test/dirty/*.gr.out
+	@rm -f test/clean/*.out.gr
+	@rm -f test/dirty/*.out.gr
+	@rm -f test/clean/*.gr.out
+	@rm -f test/dirty/*.gr.out
 
