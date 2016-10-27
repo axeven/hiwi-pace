@@ -136,7 +136,7 @@ def get_largest_component(graph, vcount):
 
 
 def relabel_graph(graph, selected_vertices):
-    print('Relabeling ...')
+    # print('Relabeling ...')
     old_label = [-1]
     new_vertice_count = 0
     for i in range(1, len(selected_vertices)):
