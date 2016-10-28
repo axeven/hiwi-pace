@@ -123,7 +123,7 @@ def print_gr_file(file, degree,connect,vcount,ecount):  ##, ##outfile):
     number_of_vertices= vcount
     number_of_edges=ecount
     print(filename, clean ,number_of_vertices,int(number_of_edges),connect," ".join(str(x) for x in final_list))
-    return []
+    return clean
 
 def main():
     parser = argparse.ArgumentParser()
@@ -134,7 +134,10 @@ def main():
     center = random.randrange(1, vcount + 1)
     graph,added_to_queue, new_vertice_count,new_e_count= perform_BFS(graph,vcount,ecount,center,radius)
     degree,connect=perform_clean(graph,added_to_queue,vcount,new_vertice_count)
-    print_gr_file(args.grfile,degree,connect,vcount,ecount)
-
+    clean=print_gr_file(args.grfile,degree,connect,vcount,ecount)
+    if clean=="clean":
+      sys.exit(0)
+    else:
+      sys.exit(-1)
 if __name__ == '__main__':
     main()

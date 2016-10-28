@@ -61,7 +61,7 @@ do
   STATE=$?
   if [ "0$STATE" -eq "0$2" ]
   then
-    diff "$grfile" "$file.is_clean.out" &> /dev/null;
+    diff "$file.gr.out" "$file.is_clean.out" &> /dev/null;
     STATEDIFF=$?
     if [ "0$STATEDIFF" -eq "00" ]
     then
@@ -85,7 +85,7 @@ tput sgr0;
 do_test_make_clean 0 clean
 tput sgr0;
 
-do_test_is_clean dirty 1
+do_test_is_clean dirty 255
 tput sgr0;
 
 do_test_is_clean clean 0
