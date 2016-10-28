@@ -89,15 +89,16 @@ def remove_edges_on_degree_one_vertices(graph, V, E):
             added_to_queue[i] = True
     new_e = E
     while len(queue) != 0:
-        pop = queue[0]
-        queue = queue[1:]
-        for v in graph[pop]:
-            graph[v].remove(pop)
-            if not added_to_queue[v] and len(graph[v]) < 2:
-                queue.append(v)
-                added_to_queue[v] = True
-        new_e -= len(graph[pop])
-        graph[pop] = []
+        next_queue = []
+        for pop in queue:
+            for v in graph[pop]:
+                graph[v].remove(pop)
+                if not added_to_queue[v] and len(graph[v]) < 2:
+                    next_queue.append(v)
+                    added_to_queue[v] = True
+            new_e -= len(graph[pop])
+            graph[pop] = []
+        queue = next_queue
     return graph, V, new_e
 
 

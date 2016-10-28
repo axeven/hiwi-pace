@@ -130,7 +130,7 @@ def main():
     parser.add_argument("grfile", help=".gr file containing the input graph", nargs='?')
     args = parser.parse_args()
     graph, vcount, ecount = read_gr_file(args.grfile)
-    radius = random.randrange(1, vcount)
+    radius = vcount
     center = random.randrange(1, vcount + 1)
     graph,added_to_queue, new_vertice_count,new_e_count= perform_BFS(graph,vcount,ecount,center,radius)
     degree,connect=perform_clean(graph,added_to_queue,vcount,new_vertice_count)
