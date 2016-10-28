@@ -12,7 +12,7 @@ import bitarray
 import random
 import ntpath
 import sys
-
+from collections import OrderedDict	
 
 def read_gr_file(grfile):
     # Read from grfile or stdin and store in a suitable data structure
@@ -65,7 +65,7 @@ def perform_BFS(graph, V, E, center, radius):
 
     if new_vertice_count == V:
         # the case when the graph is connected and the radius is bigger than the graph
-        return graph,queue, V, E
+        return graph,added_to_queue, V, E
 
     new_label = {}
     old_label = [-1]  # padding
@@ -83,44 +83,46 @@ def perform_BFS(graph, V, E, center, radius):
                 new_graph[i].append(new_label[j])
                 new_e_count += 1
 
-    return new_graph,queue,new_vertice_count,int(new_e_count / 2)
+    return graph,added_to_queue, new_vertice_count,new_e_count
 
-def perform_clean(graph,Globalqueue,vcount):
+def perform_clean(graph,Globalqueue,vcount,new_vcount):
     #return output_degree
     #[...]
     degree={}
-    print (graph)
-    for i in range(0,len(graph)):       
+    for i in range(1,len(graph)):       
        	  degree[i]=len(graph[i])
-    if len(Globalqueue)==vcount:
+    ## checking connectivity
+    if new_vcount==vcount:
         connect="connected"
     else:
         connect="not connected"
     return(degree,connect)
  
-def print_gr_file(graph, file, degree,connect,vcount,ecount):  ##, ##outfile):
+def print_gr_file(file, degree,connect,vcount,ecount):  ##, ##outfile):
     # Print graph to (already opened) outfile stream
     # [...]
     count = 0
-    counter=[]
+    counter={}
+    
     if file is None:
         filename = "unknown file"
     else:
-        filename = ntpath.basename(file)      
-    if 0 in degree or 1 in degree: 
-        clean="dirty"
-    else:
+        filename = ntpath.basename(file)
+    for j in degree.values():
+       if j not in counter:
+           counter[j]=0
+       counter[j]+=1	
+    final_list=[0]*(max(counter.keys())+1)
+    for i in counter:
+          final_list[i]=counter[i]  
+    #checking that it is clean or dirty  
+    if final_list[0]==0 and final_list[1]==0: 
         clean="clean"
-   
-    for j in range(0,max(degree)):        
-       count=0
-       for i in degree:
-          if degree[i]==j:
-              count=count+1
-       counter.append(count)          
+    else:
+        clean="dirty"  
     number_of_vertices= vcount
     number_of_edges=ecount
-    print(filename, clean ,number_of_vertices,int(number_of_edges),connect," ".join(str(x) for x in counter))
+    print(filename, clean ,number_of_vertices,int(number_of_edges),connect," ".join(str(x) for x in final_list))
     return []
 
 def main():
@@ -130,9 +132,9 @@ def main():
     graph, vcount, ecount = read_gr_file(args.grfile)
     radius = random.randrange(1, vcount)
     center = random.randrange(1, vcount + 1)
-    newgraph,queue,new_vertice_count,new_edge_count= perform_BFS(graph,vcount,ecount,center,radius)
-    degree,connect=perform_clean(graph,queue,vcount)
-    print_gr_file(newgraph, args.grfile,degree,connect,vcount,ecount)
+    graph,added_to_queue, new_vertice_count,new_e_count= perform_BFS(graph,vcount,ecount,center,radius)
+    degree,connect=perform_clean(graph,added_to_queue,vcount,new_vertice_count)
+    print_gr_file(args.grfile,degree,connect,vcount,ecount)
 
 if __name__ == '__main__':
     main()
