@@ -42,6 +42,7 @@ class Component:
     def __str__(self):
         return str(self.graph) + '\n' + str(self.members) + '\n' + str(self.count)
 
+
 def read_gr_file(grfile):
     # Read from grfile or stdin and store in a suitable data structure
     if grfile is None:
@@ -83,6 +84,7 @@ def remove_edges_on_degree_one_vertices(graph, V, E):
     # print('Removing degree one ...')
     queue = []
     added_to_queue = bitarray(V + 1)  # index 0 is a padding
+    added_to_queue.setall(False)
     for i in range(1, V + 1):
         if len(graph[i]) < 2:
             queue.append(i)
@@ -133,7 +135,8 @@ def get_largest_component(graph, vcount):
                     # if more than half of vertices is in one component
                     # then that component is definitely the largest one
                     break
-    return max_component.graph, max_component.members, max_component.count, int(sum(len(vs) for vs in max_component) / 2)
+    return max_component.graph, max_component.members, max_component.count, int(
+        sum(len(vs) for vs in max_component) / 2)
 
 
 def relabel_graph(graph, selected_vertices):
