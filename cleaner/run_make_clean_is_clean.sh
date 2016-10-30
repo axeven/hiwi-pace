@@ -29,20 +29,20 @@ do
   then
     GRFILE=${FILENAME%.bz2}
     STEM=${GRFILE%.gr}
-    echo "echo $FILENAME; bzcat $INDIR/$FILENAME > $tmpdir/$GRFILE; python3 $MAKE_CLEAN $tmpdir/$GRFILE > $OUTDIR/"$STEM".gr;python3 $IS_CLEAN $OUTDIR/"$STEM".gr > $OUTDIR/"$STEM".gr.clean;rm $tmpdir/$GRFILE"
+    echo "echo $FILENAME; bzcat $INDIR/$FILENAME > $tmpdir/$GRFILE; python3 $MAKE_CLEAN $tmpdir/$GRFILE > $OUTDIR/"$STEM".gr;python3 $IS_CLEAN $OUTDIR/"$STEM".gr > $OUTDIR/"$STEM".gr.clean;tar -czvf $OUTDIR/"$STEM".tar.gz $OUTDIR/"$STEM".gr; rm $OUTDIR/"$STEM".gr;rm $tmpdir/$GRFILE"
     
   fi
   if [[ "$FILENAME" == *.xz ]];
   then
     GRFILE=${FILENAME%.xz}
     STEM=${GRFILE%.gr}
-    echo "echo $FILENAME; xzcat $INDIR/$FILENAME > $tmpdir/$GRFILE; python3 $MAKE_CLEAN $tmpdir/$GRFILE > $OUTDIR/"$STEM".gr;python3 $IS_CLEAN $OUTDIR/"$STEM".gr > $OUTDIR/"$STEM".gr.clean; rm $tmpdir/$GRFILE"
+    echo "echo $FILENAME; xzcat $INDIR/$FILENAME > $tmpdir/$GRFILE; python3 $MAKE_CLEAN $tmpdir/$GRFILE > $OUTDIR/"$STEM".gr;python3 $IS_CLEAN $OUTDIR/"$STEM".gr > $OUTDIR/"$STEM".gr.clean;tar -czvf $OUTDIR/"$STEM".tar.gz $OUTDIR/"$STEM".gr; rm $OUTDIR/"$STEM".gr;rm $tmpdir/$GRFILE"
   fi
   if [[ "$FILENAME" == *.gr ]];
   then
     GRFILE=$FILENAME    
     STEM=${GRFILE%.gr}
-    echo "echo $FILENAME; $MAKE_CLEAN $INDIR/$GRFILE > $OUTDIR/"$STEM".gr;python3 $IS_CLEAN $OUTDIR/"$STEM".gr > $OUTDIR/"$STEM".gr.clean";
+    echo "echo $FILENAME; $MAKE_CLEAN $INDIR/$GRFILE > $OUTDIR/"$STEM".gr;python3 $IS_CLEAN $OUTDIR/"$STEM".gr > $OUTDIR/"$STEM".gr.clean;tar -czvf $OUTDIR/"$STEM".tar.gz $OUTDIR/"$STEM".gr; rm $OUTDIR/"$STEM".gr"
    
   fi
 done > $tmpdir/tasks
