@@ -13,7 +13,7 @@ def cat_files(inputf, ext='.clean'):
     for file in files:
         with open(inputf + '/' + file, 'r') as f:
             for line in f:
-                print(line)
+                print(line.strip())
 
 def main():
     parser = argparse.ArgumentParser()
