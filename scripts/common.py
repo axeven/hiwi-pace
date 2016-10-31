@@ -27,3 +27,18 @@ def get_file_list(folder, ext=None):
         if os.path.isfile(sub):
             files.append(str(sub)[len(folder):])
     return files
+
+
+def find_matching_file(file, target_folder, same_folder=False):
+    """
+    Find a matching of a file, possibly archived, in the target_folder.
+    """
+    base_name = os.path.basename(file)
+    exts = ['.bz2', '.xv', '.tar.gz', '.tgz', '.gr']
+    if not same_folder and os.path.isfile(target_folder + '/' + base_name):
+        return target_folder + '/' + base_name
+    for name in reversed(range(-len(base_name), 1)):
+        for ext in exts:
+            if os.path.isfile(target_folder + '/' + name + ext):
+                return target_folder + '/' + name + ext
+    return None

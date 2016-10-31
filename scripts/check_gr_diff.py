@@ -4,27 +4,7 @@ import os
 import subprocess
 import re
 
-from common import get_folder_list, get_file_list
-
-
-def find_matching_file(file, target_folder):
-    """
-    Find a matching of a file, possibly archived, in the target_folder.
-    """
-    base_name = os.path.basename(file)
-    stem_name = base_name[:base_name.rfind('.')]
-    matching = None
-    archive_ext = ['.bz2', '.xv', '.tar.gz', '.tgz']
-    if os.path.isfile(target_folder + '/' + base_name):
-        matching = target_folder + '/' + base_name
-    for ext in archive_ext:
-        if matching is None and os.path.isfile(target_folder + '/' + base_name + ext):
-            matching = target_folder + '/' + base_name + ext
-            break
-        if matching is None and os.path.isfile(target_folder + '/' + stem_name + ext):
-            matching = target_folder + '/' + stem_name + ext
-            break
-    return matching
+from common import get_folder_list, get_file_list, find_matching_file
 
 
 def extract_file_if_necessary(file, tmpdir):
