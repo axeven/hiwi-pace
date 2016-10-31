@@ -18,7 +18,6 @@ def cat_files(inputf, ext='.clean'):
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--input", '-i', help="input folder", required=True)
-    parser.add_argument("--output", '-o', help="output file", required=True)
     parser.add_argument("--extension", '-e', help="extension of the files to be gathered", default='.clean')
     args = parser.parse_args()
     cat_files(args.input, args.extension)
