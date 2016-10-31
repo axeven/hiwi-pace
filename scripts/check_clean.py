@@ -34,7 +34,7 @@ def check_clean(inputf, ext='.clean', print_interval = 1000):
     if len(dirty_files) == 0:
         print('No dirty instance found.')
     else:
-        print('Dirty instance(s) found:')
+        print('{:d} dirty instance(s) found:'.format(len(dirty_files)))
         for file in dirty_files:
             print(file)
 
