@@ -30,7 +30,7 @@ def check_clean(inputf, ext='.clean', print_interval = 1000):
         counter += 1
         if counter % print_interval == 0:
             print('{:d} files checked'.format(counter))
-
+    print('{:d} files checked'.format(counter))
     if len(dirty_files) == 0:
         print('No dirty instance found.')
     else:
