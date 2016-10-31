@@ -30,7 +30,7 @@ def check_clean(inputf, ext='.clean', remove_dirty=False, print_interval = 1000)
             dirty_files.append(inputf + file)
             if remove_dirty:
                 to_remove = find_matching_file(inputf + file, os.path.dirname(inputf + file), True)
-                print(to_remove)
+                os.remove(to_remove)
         counter += 1
         if counter % print_interval == 0:
             print('{:d} files checked'.format(counter))
