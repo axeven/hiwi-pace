@@ -14,7 +14,7 @@ def find_matching_file(file, target_folder):
     base_name = os.path.basename(file)
     stem_name = base_name[:base_name.rfind('.')]
     matching = None
-    archive_ext = ['.bz2', '.xv']
+    archive_ext = ['.bz2', '.xv', '.tar.gz', '.tgz']
     if os.path.isfile(target_folder + '/' + base_name):
         matching = target_folder + '/' + base_name
     for ext in archive_ext:
@@ -42,6 +42,12 @@ def extract_file_if_necessary(file, tmpdir):
             subprocess.call(['xzcat', file],
                                   stdout=f,
                                   stderr=f,)
+        return tmp_file
+    if file.endswith('.tar.gz'):
+        with open(tmp_file, 'w') as f:
+            subprocess.call(['tar', '-xOf', tmp_file, os.path.basename(file)[:-len('.tar.gz')]],
+                                      stdout=f,
+                                      stderr=f,)
         return tmp_file
     return file
 
