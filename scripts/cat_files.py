@@ -11,7 +11,7 @@ def cat_files(inputf, ext='.clean'):
     """
     files = get_file_list(inputf, ext)
     for file in files:
-        with open(file, 'r') as f:
+        with open(inputf + '/' + file, 'r') as f:
             for line in f:
                 print(line)
 
