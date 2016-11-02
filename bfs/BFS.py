@@ -13,8 +13,8 @@ import random
 import ntpath
 import sys
 
-
-def read_gr_file(grfile):
+class BFS:
+ def read_gr_file(grfile):
     # Read from grfile or stdin and store in a suitable data structure
     if grfile is None:
         file = sys.stdin
@@ -41,7 +41,7 @@ def read_gr_file(grfile):
     return graph, vcount, ecount
 
 
-def perform_BFS(graph, V, E, center, radius):
+ def perform_BFS(graph, V, E, center, radius):
     added_to_queue = bitarray.bitarray(V + 1)  # added_to_queue[0] is a padding
     added_to_queue.setall(False)
     queue = [center]
@@ -84,7 +84,7 @@ def perform_BFS(graph, V, E, center, radius):
     return new_graph, new_vertice_count, int(new_e_count / 2)
 
 
-def print_gr_file(graph, ecount, header=None):
+ def print_gr_file(graph, ecount, header=None):
     if header is not None:
         print(header)
     print("p tw", len(graph) - 1, ecount)
@@ -94,7 +94,7 @@ def print_gr_file(graph, ecount, header=None):
                 print(str(i), str(j))
 
 
-def get_header(file, center, radius):
+ def get_header(file, center, radius):
     if file is None:
         filename = "unknown file"
     else:
@@ -104,7 +104,7 @@ def get_header(file, center, radius):
            + str(center) + "\nc radius: " + str(radius)
 
 
-def main():
+ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("grfile", help=".gr file containing the input graph", nargs='?')
     parser.add_argument("--center", "-c", help="start the BFS from this vertex", nargs='?', type=int)
@@ -119,5 +119,6 @@ def main():
     print_gr_file(newgraph, E, get_header(args.grfile, args.center, args.radius))
 
 
-if __name__ == '__main__':
+ if __name__ == '__main__':
     main()
+
