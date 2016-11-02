@@ -68,10 +68,6 @@ def read_gr_file_and_clean(grfile):
         if a != b:
             graph[a].add(b)
             graph[b].add(a)
-        if a > vcount:
-            print(a, 'larger than', vcount)
-        if b > vcount:
-            print(b, 'larger than', vcount)
     file.close()
     ecount = 0
     for i in range(len(graph)):
