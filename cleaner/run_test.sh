@@ -10,6 +10,11 @@ TESTTASKS=(test/dirty/test1.gr\ \>\ test/dirty/test1.out.gr
 test/dirty/test2.gr\ \>\ test/dirty/test2.out.gr
 test/clean/test3.gr\ \>\ test/clean/test3.out.gr
 test/clean/test4.gr\ \>\ test/clean/test4.out.gr
+test/dirty/test5.gr\ \>\ test/dirty/test5.out.gr
+test/dirty/test6.gr\ \>\ test/dirty/test6.out.gr
+test/dirty/test7.gr\ \>\ test/dirty/test7.out.gr
+test/dirty/test8.gr\ \>\ test/dirty/test8.out.gr
+test/dirty/test9.gr\ \>\ test/dirty/test9.out.gr
 )
 IFS=""
 

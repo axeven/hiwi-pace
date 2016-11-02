@@ -76,11 +76,12 @@ def read_gr_file_and_clean(grfile):
     return graph, len(graph)-1, int(ecount / 2)
 
 
-def print_gr_file(graph, ecount, header=None):
+def print_gr_file(graph, vcount, ecount, header=None):
     if header is not None:
         print(header)
-    print("p tw", len(graph) - 1, ecount)
+    print("p tw", vcount, ecount)
     for i in range(1, len(graph)):
+        graph[i] = sorted(graph[i])
         for j in graph[i]:
             if j > i:
                 print(str(i), str(j))
@@ -208,11 +209,11 @@ def main():
     parser.add_argument("grfile", help=".gr file containing the input graph", nargs='?')
     args = parser.parse_args()
     graph, V, E = read_gr_file_and_clean(args.grfile)
-    graph, V, E = remove_edges_on_degree_one_vertices(graph, V, E)
+    graph, V_, E_ = remove_edges_on_degree_one_vertices(graph, V, E)
     graph, Vs, V_, E_ = get_largest_component(graph)
     if V != V_:
         graph = relabel_graph(graph, Vs)
-    print_gr_file(graph, E_)
+    print_gr_file(graph, V_, E_)
 
 
 if __name__ == '__main__':
