@@ -216,7 +216,7 @@ def main():
     graph, Vs, V_, E_ = get_largest_component(graph)
     if V != V_:
         graph = relabel_graph(graph, Vs)
-        print_gr_file(graph, E_)
+    print_gr_file(graph, E_)
 
 
 if __name__ == '__main__':
