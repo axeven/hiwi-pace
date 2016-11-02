@@ -40,7 +40,6 @@ def read_gr_file(grfile):
     file.close()
     return graph, vcount, ecount
 
-
 def perform_BFS(graph, V, E, center, radius):
     added_to_queue = bitarray.bitarray(V + 1)  # added_to_queue[0] is a padding
     added_to_queue.setall(False)
@@ -92,7 +91,6 @@ def print_gr_file(graph, ecount, header=None):
         for j in graph[i]:
             if j > i:
                 print(str(i), str(j))
-
 
 def get_header(file, center, radius):
     if file is None:
