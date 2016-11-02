@@ -12,6 +12,7 @@ import bitarray
 import random
 import ntpath
 import sys
+import itertools
 from collections import OrderedDict	
 
 def read_gr_file(grfile):
@@ -31,14 +32,25 @@ def read_gr_file(grfile):
             vcount = int(temp[2])
             ecount = int(temp[3])
             graph = [[] for i in range(vcount + 1)]
+            new_graph= [[] for i in range(vcount + 1)]
             continue
         v = line.split(' ')
         a = int(v[0])
         b = int(v[1])
         graph[a].append(b)
         graph[b].append(a)
+        if a==b :
+           clean= "dirty"
+        else:
+           clean="clean"
     file.close()
-    return graph, vcount, ecount
+    if clean=="clean": 
+     for index in range (0,len(graph)-1): 
+       if len(graph[index]) != len(set(graph[index])):
+          clean="dirty"
+          break
+          
+    return graph, vcount, ecount, clean
 
 
 def perform_BFS(graph, V, E, center, radius):
@@ -98,7 +110,7 @@ def perform_clean(graph,Globalqueue,vcount,new_vcount):
         connect="not connected"
     return(degree,connect)
  
-def print_gr_file(file, degree,connect,vcount,ecount):  ##, ##outfile):
+def print_gr_file(file, degree,connect,vcount,ecount,clean):  ##, ##outfile):
     # Print graph to (already opened) outfile stream
     # [...]
     count = 0
@@ -116,7 +128,7 @@ def print_gr_file(file, degree,connect,vcount,ecount):  ##, ##outfile):
     for i in counter:
           final_list[i]=counter[i]  
     #checking that it is clean or dirty  
-    if final_list[0]==0 and final_list[1]==0: 
+    if final_list[0]==0 and final_list[1]==0 and clean=="clean": 
         clean="clean"
     else:
         clean="dirty"  
@@ -129,12 +141,12 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("grfile", help=".gr file containing the input graph", nargs='?')
     args = parser.parse_args()
-    graph, vcount, ecount = read_gr_file(args.grfile)
+    graph, vcount, ecount,clean = read_gr_file(args.grfile)
     radius = vcount
     center = random.randrange(1, vcount + 1)
     graph,added_to_queue, new_vertice_count,new_e_count= perform_BFS(graph,vcount,ecount,center,radius)
     degree,connect=perform_clean(graph,added_to_queue,vcount,new_vertice_count)
-    clean=print_gr_file(args.grfile,degree,connect,vcount,ecount)
+    clean=print_gr_file(args.grfile,degree,connect,vcount,ecount,clean)
     if clean=="clean":
       sys.exit(0)
     else:
