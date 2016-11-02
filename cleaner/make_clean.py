@@ -168,8 +168,10 @@ def main():
     graph, V, E = remove_edges_on_degree_one_vertices(graph, V, E)
     new_graph, Vs, V_, E_ = get_largest_component(graph, V)
     if V != V_:
-        new_graph = relabel_graph(new_graph, Vs)
-    print_gr_file(new_graph, E_)
+
+        graph = relabel_graph(graph, Vs)
+    print_gr_file(graph, E_)
+
 
 
 if __name__ == '__main__':
