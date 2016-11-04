@@ -35,8 +35,12 @@ def find_matching_file(file, target_folder, same_folder=False):
     """
     base_name = os.path.basename(file)
     exts = ['.bz2', '.xz', '.tar.gz', '.tgz', '.gr', '.gr.bz2', '.gr.xz']
-    if not same_folder and os.path.isfile(target_folder + '/' + base_name):
-        return target_folder + '/' + base_name
+    if not same_folder:
+        if os.path.isfile(target_folder + '/' + base_name):
+            return target_folder + '/' + base_name
+        for ext in exts:
+            if os.path.isfile(target_folder + '/' + base_name + ext):
+                return target_folder + '/' + base_name + ext
     for i in reversed(range(-len(base_name), -1)):
         for ext in exts:
             if os.path.isfile(target_folder + '/' + base_name[:i] + ext):
