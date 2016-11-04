@@ -22,6 +22,7 @@ def read_gr_file(grfile):
     else:
         file = open(grfile)
     graph = []
+    clean="dirty"
     for line in file:
         # assumes the .gr file is valid
         if line[0] == 'c':
@@ -39,6 +40,7 @@ def read_gr_file(grfile):
         b = int(v[1])
         graph[a].append(b)
         graph[b].append(a)
+        
         if a==b :
            clean= "dirty"
         else:
@@ -49,7 +51,7 @@ def read_gr_file(grfile):
        if len(graph[index]) != len(set(graph[index])):
           clean="dirty"
           break
-          
+         
     return graph, vcount, ecount, clean
 
 
