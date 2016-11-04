@@ -53,10 +53,10 @@ def check_gr_diff(inputf, outputf):
         if matching is None:
             no_matching.append(gr)
             continue
-        file_a = extract_file_if_necessary(gr)
-        file_b = extract_file_if_necessary(matching)
-        if get_vertice_and_edge_count_from_gr(file_a) != get_vertice_and_edge_count_from_gr(file_b):
-            diff.append((gr, matching))
+        # file_a = extract_file_if_necessary(gr)
+        # file_b = extract_file_if_necessary(matching)
+        # if get_vertice_and_edge_count_from_gr(file_a) != get_vertice_and_edge_count_from_gr(file_b):
+            # diff.append((gr, matching))
     return diff, no_matching
 
 
