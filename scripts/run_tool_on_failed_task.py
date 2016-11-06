@@ -35,9 +35,9 @@ def run(run_param):
         tmp_output = tmp_dir_output + '/' + get_extracted_name(os.path.basename(output_file))
     print("Running {:s} on {:s} ".format(os.path.basename(tool), os.path.basename(tmp_input)))
     with open(tmp_output, 'w') as f:
-        ret = subprocess.call([tool, tmp_input],
+        ret = subprocess.call(['python3', tool, tmp_input],
                               stdout=f,
-                              stderr=f, )
+                              stderr=f)
     if archive_input:
         print('Removing ' + tmp_input)
         os.remove(tmp_input)
