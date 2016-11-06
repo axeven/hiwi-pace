@@ -105,6 +105,18 @@ def do_task(inputf, input_ext, failed_outputf, outputf, output_ext, tool, jobs, 
         tasks.append((tool, f, output_file, archive_input,
                       output_ext, tmp_dir_input, tmp_dir_output))
     print('{:d} tasks created.'.format(len(tasks)))
+
+    print('Checking for write permission ...')
+    permitted_task = []
+    not_permitted = []
+    for t in tasks:
+        if os.access(t[2], os.W_OK):
+            permitted_task.append(t)
+        else:
+            not_permitted.append(t)
+    tasks = permitted_task
+    print('{:d} tasks not permitted.'.format(len(not_permitted)))
+    print('{:d} tasks left.'.format(len(tasks)))
     print('Running tasks in {:d} jobs ...'.format(jobs))
     if jobs == 1:
         for t in tasks:
@@ -112,6 +124,7 @@ def do_task(inputf, input_ext, failed_outputf, outputf, output_ext, tool, jobs, 
     else:
         with Pool(processes=jobs) as p:
             p.map(run, tasks, chunksize=1)
+    shutil.rmtree(tmp_dir)
     if tmp_dir_input is not None:
         shutil.rmtree(tmp_dir_input)
     if tmp_dir_output is not None:
