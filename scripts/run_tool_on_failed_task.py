@@ -51,7 +51,7 @@ def run(run_param):
     print("Job {:s} on {:s} is done.".format(os.path.basename(tool), os.path.basename(input_file)))
 
 
-def is_failed(file, validate=None):
+def is_failed(file, validate=None, tmp_dir=None):
     """
     A task is failed if the output is small and/or it does not validate
     Small ~ less than 68 bytes xz file
@@ -61,6 +61,8 @@ def is_failed(file, validate=None):
         if validate is None:
             return True
         try:
+            if get_extracted_name(os.path.basename(file)) != os.path.basename(file):
+                file = extract_file_if_necessary(file, tmp_dir)
             output = subprocess.check_output([validate, file])
         except subprocess.CalledProcessError:
             output = 'invalid'
@@ -76,9 +78,10 @@ def do_task(inputf, input_ext, failed_outputf, outputf, output_ext, tool, jobs, 
     print('Checking failed tasks')
     failed = []
     files = get_file_list(inputf, input_ext)
+    tmp_dir = create_tmp_dir(tool)
     for f in files:
         match = find_matching_file(inputf + f, inputf, failed_outputf)
-        if match is None or is_failed(match, validate):
+        if match is None or is_failed(match, validate, tmp_dir):
             failed.append(inputf + f)
     print('Found {:d} failed tasks.'.format(len(failed)))
     if len(failed) == 0:
