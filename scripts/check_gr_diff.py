@@ -71,7 +71,8 @@ def main():
     print('{:d} different matching found.'.format(len(diff_files)))
     if len(no_match) > 0:
         print('{:d} files does not have a match.'.format(len(no_match)))
-
+        for i in no_match:
+            print(i)
 
 if __name__ == '__main__':
     main()
