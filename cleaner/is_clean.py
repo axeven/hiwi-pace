@@ -20,7 +20,7 @@ def read_gr_file(grfile):
     if grfile is None:
         file = sys.stdin
     else:
-        file = open(grfile)
+        file = open(grfile,"r")
     graph = []
     for line in file:
         # assumes the .gr file is valid
