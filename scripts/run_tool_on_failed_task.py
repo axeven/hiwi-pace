@@ -110,10 +110,15 @@ def do_task(inputf, input_ext, failed_outputf, outputf, output_ext, tool, jobs, 
     permitted_task = []
     not_permitted = []
     for t in tasks:
-        if os.access(t[2], os.W_OK):
-            permitted_task.append(t)
+        if not os.access(t[2], os.W_OK):
+            # try removing first
+            os.remove(t[2])
+        if os.path.exists(t[2]):
+            if not os.access(t[2], os.W_OK):
+                not_permitted.append(t)
         else:
-            not_permitted.append(t)
+            permitted_task.append(t)
+
     tasks = permitted_task
     print('{:d} tasks not permitted.'.format(len(not_permitted)))
     print('{:d} tasks left.'.format(len(tasks)))
