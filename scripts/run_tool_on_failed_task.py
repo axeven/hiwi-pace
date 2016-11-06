@@ -112,7 +112,10 @@ def do_task(inputf, input_ext, failed_outputf, outputf, output_ext, tool, jobs, 
     for t in tasks:
         if not os.access(t[2], os.W_OK):
             # try removing first
-            os.remove(t[2])
+            try:
+                os.remove(t[2])
+            except IOError:
+                pass
         if os.path.exists(t[2]):
             if not os.access(t[2], os.W_OK):
                 not_permitted.append(t)
