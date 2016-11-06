@@ -112,6 +112,7 @@ def do_task(inputf, input_ext, failed_outputf, outputf, output_ext, tool, jobs, 
     else:
         with Pool(processes=jobs) as p:
             p.map(run, tasks, chunksize=1)
+    shutil.rmtree(tmp_dir)
     if tmp_dir_input is not None:
         shutil.rmtree(tmp_dir_input)
     if tmp_dir_output is not None:
