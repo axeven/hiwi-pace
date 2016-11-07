@@ -73,7 +73,7 @@ def read_gr_file_and_clean(grfile):
     for i in range(len(graph)):
         graph[i] = list(graph[i])
         ecount += len(graph[i])
-    return graph, len(graph)-1, int(ecount / 2)
+    return graph, len(graph) - 1, int(ecount / 2)
 
 
 def print_gr_file(graph, vcount, ecount, header=None):
@@ -137,9 +137,6 @@ def get_largest_component(graph):
                             added_to_queue_count += 1
                             component.add_vertice(v)
                     component[q] = graph[q]
-                    for w in graph[q]:
-                        if w == q:
-                            print('something went wrong')
                 queue = next_queue
             if component > max_component:
                 max_component = component
@@ -167,20 +164,26 @@ def assert_valid_graph(graph, V, E):
             for v in graph[u]:
                 if v == 0:
                     print(u, 'is referencing 0')
+                    sys.exit(-1)
                 if u == v:
                     print(u, 'is referencing itself')
+                    sys.exit(-1)
                 should_exists[v] = True
     e_count = int(e_count / 2)
     if v_count != V:
         print('V count does not match: {:d} and {:d}'.format(V, v_count))
+        sys.exit(-1)
     if e_count != E:
         print('E count does not match: {:d} and {:d}'.format(E, e_count))
+        sys.exit(-1)
 
     for i in range(len(node_exists)):
         if not node_exists[i] and should_exists[i]:
             print('Error: {:d} does not have reference'.format(i))
+            sys.exit(-1)
         if node_exists[i] and not should_exists[i]:
             print('Error: {:d} is not referenced'.format(i))
+            sys.exit(-1)
 
 
 def relabel_graph(graph, selected_vertices):
@@ -209,10 +212,14 @@ def main():
     parser.add_argument("grfile", help=".gr file containing the input graph", nargs='?')
     args = parser.parse_args()
     graph, V, E = read_gr_file_and_clean(args.grfile)
+    assert_valid_graph(graph, V, E)
     graph, V_, E_ = remove_edges_on_degree_one_vertices(graph, V, E)
+    assert_valid_graph(graph, V_, E_)
     graph, Vs, V_, E_ = get_largest_component(graph)
+    assert_valid_graph(graph, V_, E_)
     if V != V_:
         graph = relabel_graph(graph, Vs)
+        assert_valid_graph(graph, V_, E_)
     print_gr_file(graph, V_, E_)
 
 
