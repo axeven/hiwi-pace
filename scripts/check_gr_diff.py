@@ -4,33 +4,7 @@ import os
 import subprocess
 import re
 
-from common import get_folder_list, get_file_list, find_matching_file
-
-
-def extract_file_if_necessary(file, tmpdir):
-    tmp_file = tmpdir + '/' + os.path.basename(file)
-    while os.path.exists(tmp_file):
-        tmp_file += '_'
-    if file.endswith('.bz2'):
-        with open(tmp_file, 'w') as f:
-            subprocess.call(['bzcat', file],
-                            stdout=f,
-                            stderr=f, )
-        return tmp_file
-    if file.endswith('.xz'):
-        with open(tmp_file, 'w') as f:
-            subprocess.call(['xzcat', file],
-                            stdout=f,
-                            stderr=f, )
-        return tmp_file
-    if file.endswith('.tar.gz'):
-        with open(tmp_file, 'w') as f:
-            subprocess.call(['tar', '-xOf', tmp_file, os.path.basename(file)[:-len('.tar.gz')]],
-                            stdout=f,
-                            stderr=f, )
-        return tmp_file
-    return file
-
+from common import get_folder_list, get_file_list, find_matching_file, extract_file_if_necessary
 
 def get_vertice_and_edge_count_from_gr(file):
     with open(file, 'r') as f:
