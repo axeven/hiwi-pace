@@ -210,16 +210,23 @@ def relabel_graph(graph, selected_vertices):
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("grfile", help=".gr file containing the input graph", nargs='?')
+    parser.add_argument('--debug', help='enable debug assertion', dest='debug',
+                        action='store_true')
+    parser.set_defaults(debug=False)
     args = parser.parse_args()
     graph, V, E = read_gr_file_and_clean(args.grfile)
-    assert_valid_graph(graph, V, E)
+    if args.debug:
+        assert_valid_graph(graph, V, E)
     graph, V_, E_ = remove_edges_on_degree_one_vertices(graph, V, E)
-    assert_valid_graph(graph, V_, E_)
+    if args.debug:
+        assert_valid_graph(graph, V_, E_)
     graph, Vs, V_, E_ = get_largest_component(graph)
-    assert_valid_graph(graph, V_, E_)
+    if args.debug:
+        assert_valid_graph(graph, V_, E_)
     if V != V_:
         graph = relabel_graph(graph, Vs)
-        assert_valid_graph(graph, V_, E_)
+        if args.debug:
+            assert_valid_graph(graph, V_, E_)
     print_gr_file(graph, V_, E_)
 
 
