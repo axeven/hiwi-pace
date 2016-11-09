@@ -105,8 +105,6 @@ def do_task4(inputf, input_ext, outputf, output_ext, solver, timeout, jobs, debu
         else:
             with Pool(processes=jobs) as p:
                 p.map(run, desc_tasks, chunksize=1)
-    else:
-        print(desc_tasks)
     shutil.rmtree(tmp_dir_input)
     shutil.rmtree(tmp_dir_output)
 
