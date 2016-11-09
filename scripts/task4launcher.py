@@ -78,6 +78,7 @@ def do_task4(inputf, input_ext, outputf, output_ext, solver, timeout, jobs, debu
     tmp_dir_input = create_tmp_dir(solver)
     tmp_dir_output = create_tmp_dir(solver)
     tasks = []
+    print('Creating tasks ...')
     subfolders = get_folder_list(inputf)
     for sf in subfolders:
         grfiles = get_file_list(inputf + '/' + sf, input_ext)
@@ -91,12 +92,10 @@ def do_task4(inputf, input_ext, outputf, output_ext, solver, timeout, jobs, debu
             outputfolder = os.path.dirname(get_extracted_name(outputf + '/' + sf + gr) + output_ext)
             if not os.path.exists(outputfolder):
                 os.makedirs(outputfolder)
-
+    print('{:d} tasks created.'.format(len(tasks)))
     sorted_tasks = sorted(tasks, key=lambda tuple: tuple[0])
     desc_tasks = []
     for radius, input, output in sorted_tasks:
-        if debug:
-            print((radius, solver, input, output, timeout))
         desc_tasks.append((solver, input, output, timeout, tmp_dir_input, tmp_dir_output, output_ext))
 
     if not debug:
