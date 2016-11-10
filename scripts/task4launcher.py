@@ -36,6 +36,7 @@ def run(run_param):
     tmp_input = extract_file_if_necessary(input_file, tmp_dir_input)
     basename = os.path.basename(tmp_input)
     stemname = get_stem_name(basename)
+    time_log_file = os.path.dirname(output_file) + '/' + stemname + '.log'
     tmp_output = output_file
     # for now only support .xz
     if output_ext.endswith('.xz'):
@@ -51,7 +52,8 @@ def run(run_param):
                                                      stdin=inp,
                                                      stderr=subprocess.DEVNULL,
                                                      timeout=timeout)
-                print("Time: " + '{:.2f} s'.format(time.time() - start) + ' for ' + input_file)
+                with open(time_log_file, 'w') as tlf:
+                    tlf.write("Time: " + '{:.2f} s'.format(time.time() - start) + ' for ' + input_file)
                 success = True
             except subprocess.CalledProcessError as e:
                 print("Error on {:s}".format(basename))
