@@ -6,8 +6,8 @@ import shutil
 import subprocess
 import time
 
-from common import get_folder_list, get_file_list, extract_file_if_necessary, create_tmp_dir,\
-    archive_file, get_extracted_name
+from common import get_folder_list, get_file_list, extract_file_if_necessary, create_tmp_dir, \
+    archive_file, get_extracted_name, get_file_size, get_stem_name
 
 from multiprocessing.pool import Pool
 
@@ -35,20 +35,21 @@ def run(run_param):
         print('Extracting ' + input_file)
     tmp_input = extract_file_if_necessary(input_file, tmp_dir_input)
     basename = os.path.basename(tmp_input)
+    stemname = get_stem_name(basename)
     tmp_output = output_file
     # for now only support .xz
-    if output_ext == '.xz':
-        tmp_output = tmp_dir_output + '/' + basename
+    if output_ext.endswith('.xz'):
+        tmp_output = tmp_dir_output + '/' + stemname
     print("Running {:s} for {:d} on {:s} "
-          "logfile: {:s}".format(os.path.basename(solver), timeout, basename, tmp_output))
+          "logfile: {:s}".format(os.path.basename(solver), timeout, stemname, tmp_output))
     success = False
-    with open(tmp_output, 'w') as f:
+    with open(tmp_output, 'wb') as f:
         with open(tmp_input, 'r') as inp:
             try:
                 start = time.time()
                 run_output = subprocess.check_output([solver],
                                                      stdin=inp,
-                                                     stderr=f,
+                                                     stderr=subprocess.DEVNULL,
                                                      timeout=timeout)
                 print("Time: " + '{:.2f} s'.format(time.time() - start) + ' for ' + input_file)
                 success = True
@@ -58,18 +59,20 @@ def run(run_param):
             except subprocess.TimeoutExpired as e:
                 print("Timeout error on {:s}".format(basename))
             if success:
-                with open(output_file, 'wb') as o:
-                    o.write(run_output)
+                f.write(run_output)
 
     if tmp_output != output_file and success:
         print('Compressing into ' + output_file)
         archive_file(tmp_output, output_file, output_ext)
     if tmp_output != output_file or not success:
+        # print('Removing', tmp_output)
         os.remove(tmp_output)
     if tmp_input != input_file:
+        # print('Removing', tmp_input)
         os.remove(tmp_input)
     if success:
         print("Job on {:s} finished".format(basename))
+
 
 def do_task4(inputf, input_ext, outputf, output_ext, solver, timeout, jobs, debug):
     """
@@ -79,23 +82,24 @@ def do_task4(inputf, input_ext, outputf, output_ext, solver, timeout, jobs, debu
     tmp_dir_output = create_tmp_dir(solver)
     tasks = []
     print('Creating tasks ...')
-    subfolders = get_folder_list(inputf)
-    for sf in subfolders:
-        grfiles = get_file_list(inputf + '/' + sf, input_ext)
-        for gr in grfiles:
-            tasks.append(
-                (
-                    get_radius_from_grfile(gr),
-                    inputf + '/' + sf + gr,
-                    get_extracted_name(outputf + '/' + sf + gr) + output_ext
-                ))
-            outputfolder = os.path.dirname(get_extracted_name(outputf + '/' + sf + gr) + output_ext)
-            if not os.path.exists(outputfolder):
-                os.makedirs(outputfolder)
+    grfiles = get_file_list(inputf, input_ext)
+    for gr in grfiles:
+        output_file = get_stem_name(outputf + gr) + output_ext
+        tasks.append(
+            (
+                get_file_size(inputf + gr),
+                inputf + gr,
+                output_file
+            ))
+        outputfolder = os.path.dirname(output_file)
+        if not os.path.exists(outputfolder):
+            os.makedirs(outputfolder)
     print('{:d} tasks created.'.format(len(tasks)))
     sorted_tasks = sorted(tasks, key=lambda tuple: tuple[0])
     desc_tasks = []
     for radius, input, output in sorted_tasks:
+        if debug:
+            print(radius, input, output)
         desc_tasks.append((solver, input, output, timeout, tmp_dir_input, tmp_dir_output, output_ext))
 
     if not debug:
@@ -107,6 +111,7 @@ def do_task4(inputf, input_ext, outputf, output_ext, solver, timeout, jobs, debu
                 p.map(run, desc_tasks, chunksize=1)
     shutil.rmtree(tmp_dir_input)
     shutil.rmtree(tmp_dir_output)
+
 
 def main():
     parser = argparse.ArgumentParser()

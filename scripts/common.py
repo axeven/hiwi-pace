@@ -52,7 +52,7 @@ def find_matching_file(file, input_folder, target_folder, same_folder=False):
 
 
 def extract_file_if_necessary(file, tmpdir):
-    tmp_file = tmpdir + '/' + os.path.basename(file)
+    tmp_file = tmpdir + '/' + get_extracted_name(os.path.basename(file))
     while os.path.exists(tmp_file):
         tmp_file += '_'
     if file.endswith('.bz2'):
@@ -77,7 +77,7 @@ def extract_file_if_necessary(file, tmpdir):
 
 
 def archive_file(input_file, output_file, ext):
-    if ext == '.xz':
+    if ext.endswith('.xz'):
         with open(output_file, 'w') as f:
             subprocess.call(['xz', '-c', input_file], stdout=f, stderr=f)
     return
@@ -90,8 +90,22 @@ def get_extracted_name(filename):
             return filename[:len(filename) - len(ext)]
     return filename
 
+def get_stem_name(filename):
+    exts = ['.xz', '.bz2', '.zip', '.tgz', '.gz', '.tar', '.gr', '.td']
+    for i in exts:
+        if filename.endswith(i):
+            return get_stem_name(filename[:len(filename)-len(i)])
+    return filename
+
 
 def create_tmp_dir(tool):
     cmd = 'mktemp --directory --tmpdir=/dev/shm ' + os.path.basename(tool) + '-XXXXXXXX'
     tmp_dir = subprocess.check_output(cmd.split(' '), stderr=sys.stdout)
     return tmp_dir.decode().strip()
+
+
+def get_file_size(file):
+    if os.path.isfile(file):
+        stats = os.stat(file)
+        return stats.st_size
+    return 0
