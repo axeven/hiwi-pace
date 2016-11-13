@@ -12,6 +12,8 @@ import argparse
 import sys
 from bitarray import bitarray
 
+import time
+
 
 class Component:
     def __init__(self, container_size):
@@ -89,15 +91,15 @@ def print_gr_file(graph, vcount, ecount, header=None):
 
 def remove_edges_on_degree_one_vertices(graph, V, E):
     # print('Removing degree one ...')
-    queue = []
     new_v = V
+    new_e = E
+    queue = []
     added_to_queue = bitarray(V + 1)  # index 0 is a padding
     added_to_queue.setall(False)
     for i in range(1, V + 1):
         if len(graph[i]) < 2:
             queue.append(i)
             added_to_queue[i] = True
-    new_e = E
     while len(queue) != 0:
         next_queue = []
         for pop in queue:
@@ -110,7 +112,30 @@ def remove_edges_on_degree_one_vertices(graph, V, E):
             new_v -= 1
             graph[pop] = []
         queue = next_queue
-    return graph, new_v, new_e
+    V = new_v
+    E = new_e
+    return graph, V, E
+    
+
+
+def reduce_degree_two_vertices(graph, V, E):
+    # print('Reducing degree two ...')
+    new_v = V
+    new_e = E
+    for i in range(1, V + 1):
+        if len(graph[i]) == 2:
+            [u,v] = graph[i]
+            if u not in graph[v]:
+                graph[u].remove(i)
+                graph[v].remove(i)
+                graph[u].append(v)
+                graph[v].append(u)
+                graph[i]=[]
+                new_v -= 1
+                new_e -= 1
+    V = new_v
+    E = new_e
+    return graph, V, E
 
 
 def get_largest_component(graph):
@@ -120,32 +145,30 @@ def get_largest_component(graph):
     added_to_queue.setall(False)
     added_to_queue_count = 0
     max_component = Component(container_size)
+    cur_component = [] # a list of vertices
+    max_component = []
     for u in range(1, container_size):
         if not added_to_queue[u]:
             queue = [u]
-            component = Component(container_size)
-            component.add_vertice(u)
+            cur_component = [u]
             added_to_queue[u] = True
-            added_to_queue_count += 1
             while len(queue) != 0:
                 next_queue = []
                 for q in queue:
                     for v in graph[q]:
-                        if v not in component:
+                        if added_to_queue[v] == False:
                             next_queue.append(v)
                             added_to_queue[v] = True
-                            added_to_queue_count += 1
-                            component.add_vertice(v)
-                    component[q] = graph[q]
+                            cur_component.append(v)
                 queue = next_queue
-            if component > max_component:
-                max_component = component
-                if max_component.count > container_size / 2:
+            if len(cur_component) > len(max_component):
+                max_component = cur_component
+                if len(max_component) > container_size / 2:
                     # if more than half of vertices is in one component
                     # then that component is definitely the largest one
                     break
-    return max_component.graph, max_component.members, max_component.count, int(
-        sum(len(vs) for vs in max_component) / 2)
+
+    return graph, max_component, len(max_component), int(sum(len(graph[v]) for v in max_component) / 2)
 
 
 def assert_valid_graph(graph, V, E):
@@ -188,22 +211,16 @@ def assert_valid_graph(graph, V, E):
 
 def relabel_graph(graph, selected_vertices):
     # print('Relabeling ...')
-    old_label = [-1]
-    new_vertice_count = 0
-    for i in range(1, len(selected_vertices)):
-        if selected_vertices[i]:
-            old_label.append(i)
-            new_vertice_count += 1
-    new_label = {}
-    for i in range(0, len(old_label)):
-        new_label[old_label[i]] = i
-    new_graph = [[] for i in range(new_vertice_count + 1)]
-    new_e_count = 0
-    for i in range(1, new_vertice_count + 1):
-        for j in graph[old_label[i]]:
-            if selected_vertices[j]:
-                new_graph[i].append(new_label[j])
-                new_e_count += 1
+    selected_vertices.sort()
+
+    old_to_new = dict.fromkeys(selected_vertices)
+    for i in range(1, len(selected_vertices) + 1):
+        old_to_new[selected_vertices[i-1]] = i
+
+    new_graph = [[] for i in range(len(selected_vertices) + 1)]
+    for i in range(1, len(selected_vertices) + 1):
+        new_graph[i] = list(map(lambda j: old_to_new[j],
+                graph[selected_vertices[i-1]]))
     return new_graph
 
 
@@ -214,20 +231,35 @@ def main():
                         action='store_true')
     parser.set_defaults(debug=False)
     args = parser.parse_args()
+    if args.debug:
+        start_time = time.time()
     graph, V, E = read_gr_file_and_clean(args.grfile)
     if args.debug:
+        print("file read: V={:d} E={:d}  time: {:f}".format(V,E,time.time()-start_time))
         assert_valid_graph(graph, V, E)
-    graph, V_, E_ = remove_edges_on_degree_one_vertices(graph, V, E)
+    orig_V = V
+
+    graph, V, E = remove_edges_on_degree_one_vertices(graph, V, E)
     if args.debug:
-        assert_valid_graph(graph, V_, E_)
-    graph, Vs, V_, E_ = get_largest_component(graph)
+        print("removed degree-1 vertices: V={:d} E={:d}  time: {:f}".format(V,E,time.time()-start_time))
+        assert_valid_graph(graph, V, E)
+
+    graph, V, E = reduce_degree_two_vertices(graph, V, E)
     if args.debug:
-        assert_valid_graph(graph, V_, E_)
-    if V != V_:
+        print("reduced degree-2 vertices: V={:d} E={:d}  time: {:f}".format(V,E,time.time()-start_time))
+        assert_valid_graph(graph, V, E)
+
+    graph, Vs, V, E = get_largest_component(graph)
+    if args.debug:
+        print("got largest component: V={:d} E={:d}  time: {:f}".format(V,E,time.time()-start_time))
+        #assert_valid_graph(graph, V, E)
+
+    if orig_V != V:
         graph = relabel_graph(graph, Vs)
         if args.debug:
-            assert_valid_graph(graph, V_, E_)
-    print_gr_file(graph, V_, E_)
+            print("relabeled graph: V={:d} E={:d}  time: {:f}".format(V,E,time.time()-start_time))
+            assert_valid_graph(graph, V, E)
+    print_gr_file(graph, V, E)
 
 
 if __name__ == '__main__':
