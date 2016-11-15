@@ -16,15 +16,8 @@ def run(param):
     """
     (out_file, inp_file, tmp_dir_inp, tmp_dir_out) = param
 
-    tmp_inp = inp_file
-    extracted_name = get_extracted_name(inp_file)
-    if inp_file != extracted_name:
-        tmp_inp = extract_file_if_necessary(inp_file, tmp_dir_inp)
-
-    tmp_out = out_file
-    extracted_name = get_extracted_name(out_file)
-    if out_file != extracted_name:
-        tmp_out = extract_file_if_necessary(out_file, tmp_dir_out)
+    tmp_inp = extract_file_if_necessary(inp_file, tmp_dir_inp)
+    tmp_out = extract_file_if_necessary(out_file, tmp_dir_out)
 
     # reading width
     width = -1
