@@ -1,69 +1,108 @@
 #!/usr/bin/env python3.5
 import argparse
 import csv
-import glob
 import os
 import re
+import shutil
+
+from common import get_file_list, find_matching_file, create_tmp_dir, get_extracted_name, \
+    extract_file_if_necessary, get_stem_name
+from multiprocessing.pool import Pool
 
 
-def get_file_list(folder, ext=None):
+def run(param):
     """
-    Get the file list recursively with a certain extension of the folder
+    Create a summary file for each input file.
     """
-    files = []
-    if ext is None:
-        dir_ = folder + '/**/*'
-    else:
-        dir_ = folder + '/**/*' + ext
-    for sub in glob.glob(dir_, recursive=True):
-        if os.path.isfile(sub):
-            files.append(str(sub)[len(folder):])
-    return files
+    (out_file, inp_file, tmp_dir_inp, tmp_dir_out) = param
 
+    tmp_inp = extract_file_if_necessary(inp_file, tmp_dir_inp)
+    tmp_out = extract_file_if_necessary(out_file, tmp_dir_out)
 
-def create_summary(input_folder, output_folder, output_file):
-    pattern = re.compile(r'c width = (\d+), time = (\d+\.*\d*)')
-    summary = []
-    for file in get_file_list(output_folder, ext='gr'):
-        width = -1
-        time = -1
-        with open(output_folder + file, 'r') as f:
+    # reading width
+    width = -1
+    with open(tmp_out, 'r') as f:
+        for line in f:
+            if line.startswith('s td '):
+                width = int(line.split()[3]) - 1
+                break
+    if tmp_out != out_file:
+        os.remove(tmp_out)
+
+    # reading time
+    log_file = get_stem_name(out_file) + '.log'
+    time = -1
+    if os.path.isfile(log_file):
+        with open(log_file, 'r') as f:
             for line in f:
-                if time == -1:
-                    match = pattern.match(line)
-                    if match:
-                        time = float(match.group(2))
-                        if width != -1:
-                            break
-                if width == -1 and line.startswith('s td'):
-                    width = int(line.split()[3]) - 1
-                    if time != -1:
-                        break
-        with open(input_folder + file, 'r') as inp:
-            basename = os.path.basename(file)
-            for inp_line in inp:
-                if inp_line.startswith('p'):
-                    temp = inp_line.split(' ')
-                    vertice = int(temp[2])
-                    edge = int(temp[3])
-                    row = {
-                        'instance': basename,
-                        '#vertices': vertice,
-                        '#edges': edge,
-                        'tree width': width,
-                        'computation time': time
-                    }
-                    summary.append(row)
+                tmp = line.split(' ')
+                time = float(tmp[1])
+                break
+    else:
+        pattern = re.compile(r'c width = (\d+), time = (\d+\.*\d*)')
+        with open(tmp_out, 'r') as f:
+            for line in f:
+                match = pattern.search(line)
+                if match:
+                    time = float(match.group(2))
                     break
 
+    # reading vertice and edge count
+    vertice = -1
+    edge = -1
+    with open(tmp_inp, 'r') as f:
+        for line in f:
+            if line.startswith('p'):
+                tmp = line.split(' ')
+                vertice = int(tmp[2])
+                edge = int(tmp[3])
+                break
+    if tmp_inp != inp_file:
+        os.remove(tmp_inp)
+
+    stem_name = get_stem_name(os.path.basename(out_file))
+    sum_file = os.path.dirname(out_file) + '/' + stem_name + '.summary'
+    with open(sum_file, 'w') as f:
+        f.write(stem_name + ',' + vertice + ',' + edge + ',' + width + ',' + time)
+
+
+def create_summary(input_folder, output_folder, output_ext, output_file, debug, jobs):
+    tmp_dir_inp = create_tmp_dir(__file__)
+    tmp_dir_out = create_tmp_dir(__file__)
+    tasks = []
+    for file in get_file_list(output_folder, ext=output_ext):
+        out_file = output_folder + file
+        inp_file = find_matching_file(file, output_folder, input_folder)
+        if inp_file is not None:
+            tasks.append((out_file, inp_file, tmp_dir_inp, tmp_dir_out))
+        else:
+            print('No input file found for ' + out_file)
+
+    if not debug:
+        if jobs == 1:
+            for t in tasks:
+                run(t)
+        else:
+            with Pool(processes=jobs) as p:
+                p.map(run, tasks, chunksize=1)
+
+    shutil.rmtree(tmp_dir_inp)
+    shutil.rmtree(tmp_dir_out)
+
+    summary = []
+    for file in get_file_list(output_folder, ext='.summary'):
+        with open(file, 'r') as f:
+            for line in f:
+                summary.append(line)
+                break
+    summary = sorted(summary)
+
     if len(summary) == 0:
-        print("Output folder is empty")
-        return
-    header = ['instance', '#vertices', '#edges', 'tree width', 'computation time']
-    with open(output_file, 'w') as outfile:
-        writer = csv.DictWriter(outfile, delimiter=',', lineterminator='\n', fieldnames=header)
-        writer.writeheader()
-        writer.writerows(summary)
+        print('output folder does not contain ' + output_ext + ' files')
+    else:
+        print('instance,#vertices,#edges,tree width,computation time')
+        for line in summary:
+            print(line)
 
 
 def main():
@@ -73,6 +112,7 @@ def main():
     parser.add_argument("--output", '-o', help="output file", required=True)
     args = parser.parse_args()
     create_summary(args.input_folder, args.output_folder, args.output)
+
 
 if __name__ == '__main__':
     main()
