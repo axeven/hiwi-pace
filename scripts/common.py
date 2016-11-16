@@ -90,11 +90,12 @@ def get_extracted_name(filename):
             return filename[:len(filename) - len(ext)]
     return filename
 
+
 def get_stem_name(filename):
     exts = ['.xz', '.bz2', '.zip', '.tgz', '.gz', '.tar', '.gr', '.td']
     for i in exts:
         if filename.endswith(i):
-            return get_stem_name(filename[:len(filename)-len(i)])
+            return get_stem_name(filename[:len(filename) - len(i)])
     return filename
 
 
