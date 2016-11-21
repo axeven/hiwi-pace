@@ -63,29 +63,35 @@ def graph_generator(graph, V, E, C):
     return new_G, new_E, new_V
 
 
-def glue(graph, new_G, V):
-    a = random.randrange(1, len(new_G))
-    b = a
-    while a == b:
-        b = random.randrange(1, len(new_G))
-
+def glue(graph, new_G):
+    V = len(graph) - 1
+    new_V = len(new_G) - 1
     u = random.randrange(1, V + 1)
     v = u
     while u == v:
         v = random.randrange(1, V + 1)
-        
+    min_selected = min(u, v)
+    max_selected = max(u, v)
+
+    min_mapped = random.randrange(1, new_V + 1)
+    max_mapped = min_mapped
+    while min_mapped == max_mapped:
+        max_mapped = random.randrange(1, new_V + 1)
+
+
+
     # create map here
     new_index_map = [-1]
     for index in range(1, len(graph)):
-        if index != u and index != v:
+        if index != min_selected and index != max_selected:
             # new_index=index+length
             length = len(new_G)
             new_index_map.append(length)
             new_G.append([])
-        elif index == u:
-            new_index_map.append(a)
+        elif index == min_selected:
+            new_index_map.append(min_mapped)
         else:
-            new_index_map.append(b)
+            new_index_map.append(max_mapped)
 
     for index in range(1, len(graph)):
         new_index = new_index_map[index]
