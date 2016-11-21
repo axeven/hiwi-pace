@@ -51,12 +51,12 @@ def copy_graph(graph):
     return new_G
 
 
-def graph_generator(graph, V, E, C):
+def graph_generator(graph, V, C):
     # Make the graph instances
     new_G = copy_graph(graph)
     n = []
     for i in range(2, C + 1):
-        new_G = glue(graph, new_G, V)
+        new_G = glue(graph, new_G)
     new_V = C * V - (C - 1) * 2
     new_E = int(sum(len(v) for v in new_G) / 2)
 
@@ -78,26 +78,25 @@ def glue(graph, new_G):
     while min_mapped == max_mapped:
         max_mapped = random.randrange(1, new_V + 1)
 
-
-
-    # create map here
-    new_index_map = [-1]
-    for index in range(1, len(graph)):
-        if index != min_selected and index != max_selected:
-            # new_index=index+length
-            length = len(new_G)
-            new_index_map.append(length)
-            new_G.append([])
-        elif index == min_selected:
-            new_index_map.append(min_mapped)
+    for index in range(1, V + 1):
+        if index == min_selected:
+            new_index = min_mapped
+        elif index == max_selected:
+            new_index = max_mapped
         else:
-            new_index_map.append(max_mapped)
-
-    for index in range(1, len(graph)):
-        new_index = new_index_map[index]
-        for y in graph[index]:
-            if new_index_map[y] not in new_G[new_index]:
-                new_G[new_index].append(new_index_map[y])
+            new_index = len(new_G)
+            new_G.append([])
+        for x in graph[index]:
+            if x < min_selected:
+                new_G[new_index].append(x + new_V)
+            elif x == min_selected:
+                new_G[new_index].append(min_mapped)
+            elif x < max_selected:
+                new_G[new_index].append(x + new_V - 1)
+            elif x == max_selected:
+                new_G[new_index].append(max_mapped)
+            else:
+                new_G[new_index].append(x + new_V - 2)
 
     return new_G
 
@@ -127,7 +126,7 @@ def main():
     random.seed(args.s)
 
     print("c randomly_glue_graphs.py -C", args.C, "-s", args.s, args.grfile)
-    new_G, new_E, new_V = graph_generator(graph, V, E, args.C)
+    new_G, new_E, new_V = graph_generator(graph, V, args.C)
     print_gr_file(new_G, new_V, new_E)
 
 
