@@ -63,7 +63,7 @@ def run(param):
     stem_name = get_stem_name(os.path.basename(out_file))
     sum_file = os.path.dirname(out_file) + '/' + stem_name + '.summary'
     with open(sum_file, 'w') as f:
-        f.write(stem_name + ',' + vertice + ',' + edge + ',' + width + ',' + time)
+        f.write('{:s},{:d},{:d},{:d},{:.2f}'.format(stem_name, vertice, edge, width, time))
 
 
 def create_summary(input_folder, output_folder, output_ext, debug, jobs):
@@ -72,11 +72,11 @@ def create_summary(input_folder, output_folder, output_ext, debug, jobs):
     tasks = []
     for file in get_file_list(output_folder, ext=output_ext):
         out_file = output_folder + file
-        inp_file = find_matching_file(file, output_folder, input_folder)
+        inp_file = find_matching_file(out_file, output_folder, input_folder)
         if inp_file is not None:
             tasks.append((out_file, inp_file, tmp_dir_inp, tmp_dir_out))
         else:
-            print('No input file found for ' + out_file)
+            print('No matching file found for ' + os.path.basename(out_file) + ' in ' + input_folder)
 
     if not debug:
         if jobs == 1:
@@ -91,7 +91,7 @@ def create_summary(input_folder, output_folder, output_ext, debug, jobs):
 
     summary = []
     for file in get_file_list(output_folder, ext='.summary'):
-        with open(file, 'r') as f:
+        with open(output_folder + file, 'r') as f:
             for line in f:
                 summary.append(line)
                 break
