@@ -46,6 +46,7 @@ def find_matching_file(file, input_folder, target_folder, same_folder=False):
                 return target_folder + path_name + base_name + ext
     for i in reversed(range(-len(base_name), -1)):
         for ext in exts:
+            print(target_folder + path_name + base_name[:i] + ext)
             if os.path.isfile(target_folder + path_name + base_name[:i] + ext):
                 return target_folder + path_name + base_name[:i] + ext
     return None
