@@ -6,13 +6,9 @@ Copyright 2016, Holger Dell
 Licensed under GPLv3.
 '''
 
-import os
 import argparse
-import bitarray
 import random
-import ntpath
 import sys
-import time
 
 
 def read_gr_file(grfile):
@@ -130,10 +126,8 @@ def main():
         args.s = random.randrange(1, V + 1)
     random.seed(args.s)
 
-    start = time.time()
     print("c randomly_glue_graphs.py -C", args.C, "-s", args.s, args.grfile)
     new_G, new_E, new_V = graph_generator(graph, V, args.C)
-    print(time.time() - start)
     print_gr_file(new_G, new_V, new_E)
 
 
