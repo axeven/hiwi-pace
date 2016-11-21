@@ -76,7 +76,7 @@ def create_summary(input_folder, output_folder, output_ext, debug, jobs):
         if inp_file is not None:
             tasks.append((out_file, inp_file, tmp_dir_inp, tmp_dir_out))
         else:
-            print('No input file found for ' + out_file)
+            print('No matching file found for ' + os.path.basename(out_file) + ' in ' + input_folder)
 
     if not debug:
         if jobs == 1:
