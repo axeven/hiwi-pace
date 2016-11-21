@@ -110,11 +110,11 @@ def main():
     parser.add_argument("--input-folder", '-if', help="input folder of the output folder", required=True)
     parser.add_argument("--output-folder", '-of', help="the output folder to be summarized", required=True)
     parser.add_argument("--output-ext", '-ox', help="the extension of the output files to be scanned", default='.xz')
-    parser.add_argument('--jobs', help='number of parallel job. default=4', default=4, type=int)
-    parser.add_argument("--debug", help="debugging purpose", dest='debug', action='store_true')
+    parser.add_argument('--jobs', '-j', help='number of parallel job. default=4', default=4, type=int)
+    parser.add_argument("--debug", '-d', help="debugging purpose", dest='debug', action='store_true')
     parser.set_defaults(debug=False)
     args = parser.parse_args()
-    create_summary(args.input_folder, args.output_folder, args.output_ext, args.debug, args.job)
+    create_summary(args.input_folder, args.output_folder, args.output_ext, args.debug, args.jobs)
 
 
 if __name__ == '__main__':
