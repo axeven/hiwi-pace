@@ -66,7 +66,7 @@ def run(param):
         f.write(stem_name + ',' + vertice + ',' + edge + ',' + width + ',' + time)
 
 
-def create_summary(input_folder, output_folder, output_ext, output_file, debug, jobs):
+def create_summary(input_folder, output_folder, output_ext, debug, jobs):
     tmp_dir_inp = create_tmp_dir(__file__)
     tmp_dir_out = create_tmp_dir(__file__)
     tasks = []
@@ -109,9 +109,12 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--input-folder", '-if', help="input folder of the output folder", required=True)
     parser.add_argument("--output-folder", '-of', help="the output folder to be summarized", required=True)
-    parser.add_argument("--output", '-o', help="output file", required=True)
+    parser.add_argument("--output-ext", '-ox', help="the extension of the output files to be scanned", default='.xz')
+    parser.add_argument('--jobs', help='number of parallel job. default=4', default=4, type=int)
+    parser.add_argument("--debug", help="debugging purpose", dest='debug', action='store_true')
+    parser.set_defaults(debug=False)
     args = parser.parse_args()
-    create_summary(args.input_folder, args.output_folder, args.output)
+    create_summary(args.input_folder, args.output_folder, args.output_ext, args.debug, args.job)
 
 
 if __name__ == '__main__':
