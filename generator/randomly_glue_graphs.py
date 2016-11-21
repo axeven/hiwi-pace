@@ -101,6 +101,32 @@ def glue(graph, new_G):
     return new_G
 
 
+def relabel_graph(graph, selected_vertices):
+    # print('Relabeling ...')
+    selected_vertices.sort()
+
+    old_to_new = dict.fromkeys(selected_vertices)
+    for i in range(1, len(selected_vertices) + 1):
+        old_to_new[selected_vertices[i - 1]] = i
+
+    new_graph = [[] for i in range(len(selected_vertices) + 1)]
+    for i in range(1, len(selected_vertices) + 1):
+        new_graph[i] = list(map(lambda j: old_to_new[j],
+                                graph[selected_vertices[i - 1]]))
+    return new_graph
+
+
+def remove_degree_zero_vertices(graph, V, E):
+    selected = []
+    for i in range(len(graph)):
+        if len(graph[i]) > 0:
+            selected.append(i)
+    if len(selected) == len(graph) - 1:
+        return graph, V, E
+    graph = relabel_graph(graph, selected)
+    return graph, len(selected), int(sum(len(v) for v in graph) / 2)
+
+
 def print_gr_file(graph, vcount, ecount):
     print("p tw", vcount, ecount)
     for i in range(1, len(graph)):
@@ -127,6 +153,7 @@ def main():
 
     print("c randomly_glue_graphs.py -C", args.C, "-s", args.s, args.grfile)
     new_G, new_E, new_V = graph_generator(graph, V, args.C)
+    new_G, new_E, new_V = remove_degree_zero_vertices(new_G, new_E, new_V)
     print_gr_file(new_G, new_V, new_E)
 
 
