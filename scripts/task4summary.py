@@ -63,7 +63,7 @@ def run(param):
     stem_name = get_stem_name(os.path.basename(out_file))
     sum_file = os.path.dirname(out_file) + '/' + stem_name + '.summary'
     with open(sum_file, 'w') as f:
-        f.write(stem_name + ',' + vertice + ',' + edge + ',' + width + ',' + time)
+        f.write('{:s},{:d},{:d},{:d},{:.2f}'.format(stem_name, vertice, edge, width, time))
 
 
 def create_summary(input_folder, output_folder, output_ext, debug, jobs):
