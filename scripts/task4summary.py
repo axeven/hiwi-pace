@@ -72,7 +72,7 @@ def create_summary(input_folder, output_folder, output_ext, debug, jobs):
     tasks = []
     for file in get_file_list(output_folder, ext=output_ext):
         out_file = output_folder + file
-        inp_file = find_matching_file(file, output_folder, input_folder)
+        inp_file = find_matching_file(out_file, output_folder, input_folder)
         if inp_file is not None:
             tasks.append((out_file, inp_file, tmp_dir_inp, tmp_dir_out))
         else:
