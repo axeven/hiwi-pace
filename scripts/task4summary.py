@@ -91,7 +91,7 @@ def create_summary(input_folder, output_folder, output_ext, debug, jobs):
 
     summary = []
     for file in get_file_list(output_folder, ext='.summary'):
-        with open(file, 'r') as f:
+        with open(output_folder + file, 'r') as f:
             for line in f:
                 summary.append(line)
                 break
