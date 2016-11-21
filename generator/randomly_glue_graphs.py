@@ -99,6 +99,10 @@ def glue(graph, new_G):
             else:
                 new_G[new_index].append(x + new_V - 2)
 
+    # removing duplicate edges
+    new_G[min_mapped] = list(set(new_G[min_mapped]))
+    new_G[max_mapped] = list(set(new_G[max_mapped]))
+
     return new_G
 
 
