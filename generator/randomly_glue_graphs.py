@@ -30,7 +30,7 @@ def read_gr_file(grfile):
             temp = line.split(' ')
             vcount = int(temp[2])
             ecount = int(temp[3])
-            graph = [[]for i in range(vcount+1)]
+            graph = [[] for i in range(vcount + 1)]
             continue
         v = line.split(' ')
         a = int(v[0])
@@ -41,69 +41,70 @@ def read_gr_file(grfile):
 
     return graph, vcount, ecount
 
+
 def copy_graph(graph):
-    new_G=[[]]
-    for index in range(1,len(graph)):
-       new_G.append([])
-       for j in range (0,len(graph[index])):
+    new_G = [[]]
+    for index in range(1, len(graph)):
+        new_G.append([])
+        for j in range(0, len(graph[index])):
             new_G[index].append(graph[index][j])
-    return(new_G)
-def graph_generator(graph,V,E,C):
-##Make the graph instances    
-    new_G=copy_graph(graph)
-    n=[]
-    for i in range (2,C+1):
-      new_G=glue(graph,new_G,V)
-    new_V = C*V-(C-1)*2
-    new_E=int(sum(len(v) for v in new_G) / 2)  
-  
-    return (new_G,new_E,new_V)
+    return (new_G)
 
-def glue(graph,new_G,V):
-    size=len(graph)-3
-    #G=[0]*(size+len(new_G))
-    a=random.randrange(1,V+1)
-    b=random.randrange(1,V+1)
-    #length=len(new_G)-1
-    while (a==b):
-       b=random.randrange(1,V+1) 
-    
-    u=random.randrange(1,V+1)
-    v=random.randrange(1,V+1)
-    while (u==v):
-       v=random.randrange(1,V+1) 
-    
-    #for n in range(0,size):
-       #new_G.append([])
-    
-    
 
-    #create map here
+def graph_generator(graph, V, E, C):
+    ##Make the graph instances
+    new_G = copy_graph(graph)
+    n = []
+    for i in range(2, C + 1):
+        new_G = glue(graph, new_G, V)
+    new_V = C * V - (C - 1) * 2
+    new_E = int(sum(len(v) for v in new_G) / 2)
+
+    return (new_G, new_E, new_V)
+
+
+def glue(graph, new_G, V):
+    size = len(graph) - 3
+    # G=[0]*(size+len(new_G))
+
+    u = random.randrange(1, V + 1)
+    v = random.randrange(1, V + 1)
+    while (u == v):
+        v = random.randrange(1, V + 1)
+
+    a = random.randrange(1, len(new_G))
+    b = random.randrange(1, len(new_G))
+    # length=len(new_G)-1
+    while (a == b):
+        b = random.randrange(1, len(new_G))
+        # for n in range(0,size):
+        # new_G.append([])
+
+    # create map here
     new_index_map = [-1]
-    for index in range(1,len(graph)):
-        if index!=u and index!=v:
-           #new_index=index+length
-           length = len(new_G)
-           new_index_map.append(length)
-           new_G.append([]) 
-        elif index==u:
-              new_index_map.append(a)
+    for index in range(1, len(graph)):
+        if index != u and index != v:
+            # new_index=index+length
+            length = len(new_G)
+            new_index_map.append(length)
+            new_G.append([])
+        elif index == u:
+            new_index_map.append(a)
         else:
-              new_index_map.append(b)
-    
+            new_index_map.append(b)
 
-    for index in range(1,len(graph)):
+    for index in range(1, len(graph)):
         new_index = new_index_map[index]
-        
+
         for y in graph[index]:
-           
-           if new_index_map[y] not in new_G[new_index]:
-               new_G[new_index].append(new_index_map[y])
-             
-    return(new_G)  
+
+            if new_index_map[y] not in new_G[new_index]:
+                new_G[new_index].append(new_index_map[y])
+
+    return (new_G)
+
+
 def print_gr_file(graph, vcount, ecount):
-   
-    
     print("p tw", vcount, ecount)
     for i in range(1, len(graph)):
         graph[i] = sorted(graph[i])
@@ -111,24 +112,25 @@ def print_gr_file(graph, vcount, ecount):
             if j > i:
                 print(str(i), str(j))
 
-           
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("grfile", help=".gr file containing the input graph", nargs='?')
     parser.add_argument("--C", "-C", help="the number of blocks to be generated", nargs='?', type=int)
-    parser.add_argument("--s", "-s", help="Specifies the random seed to be used in this execution of the program", type=int)
+    parser.add_argument("--s", "-s", help="Specifies the random seed to be used in this execution of the program",
+                        type=int)
     args = parser.parse_args()
     graph, V, E = read_gr_file(args.grfile)
     if args.C is None:
-       args.C = 2
-       
+        args.C = 2
+
     if args.s is None:
-       args.s = random.randrange(1, V + 1)
+        args.s = random.randrange(1, V + 1)
     random.seed(args.s)
-    
-    print("c randomly_glue_graphs.py -C",args.C,"-s", args.s, args.grfile)
-    new_G,new_E,new_V=graph_generator(graph, V,E,args.C)
-    print_gr_file(new_G,new_V,new_E)
+
+    print("c randomly_glue_graphs.py -C", args.C, "-s", args.s, args.grfile)
+    new_G, new_E, new_V = graph_generator(graph, V, E, args.C)
+    print_gr_file(new_G, new_V, new_E)
 
 
 if __name__ == '__main__':
