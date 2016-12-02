@@ -43,10 +43,8 @@ def read_td_file(tdfile, root):
         if line[0] == 'b':
             # reading the bags
             w = line.split(' ')
-            len1 = len(w)
             index = int(w[1])
-            for i in range(2, len1):
-                bags[index].append(int(w[i]))
+            bags[index] = sorted([int(w[i]) for i in range(2, len(w))])
             continue
         v = line.split(' ')
         a = int(v[0])
@@ -54,12 +52,13 @@ def read_td_file(tdfile, root):
         graph[a].append(b)
         graph[b].append(a)
     file.close()
-    # make the graph directed and using the root as guide
+    # make the graph directed by using the root as guide
     tree = graph2tree(graph, root)
     return tree, bags, ecount, vcount
 
 
 def graph2tree(graph, root):
+    # make the graph directed by using the root as guide
     used = bitarray.bitarray(len(graph))
     used.setall(False)
     tree = [[] for i in range(len(graph))]
@@ -76,8 +75,120 @@ def graph2tree(graph, root):
     return tree
 
 
-def perform_nice_tree(tree, bags):
-    return
+def diff_of_sorted_lists(a, b):
+    c = []
+    i = 0
+    j = 0
+    while i < len(a) and j < len(b):
+        if a[i] == b[j]:
+            i += 1
+            j += 1
+        elif a[i] < b[j]:
+            c.append(a[i])
+            i += 1
+        else:
+            j += 1
+    while i < len(a):
+        c.append(a[i])
+        i += 1
+    return c
+
+
+def intersection_of_sorted_lists(a, b):
+    c = []
+    i = 0
+    j = 0
+    while i < len(a) and j < len(b):
+        if a[i] == b[j]:
+            c.append(a[i])
+            i += 1
+            j += 1
+        elif a[i] < b[j]:
+            i += 1
+        else:
+            j += 1
+    return c
+
+
+def union_of_sorted_lists(a, b):
+    c = []
+    i = 0
+    j = 0
+    while i < len(a) and j < len(b):
+        if a[i] == b[j]:
+            c.append(a[i])
+            i += 1
+            j += 1
+        elif a[i] < b[j]:
+            c.append(a[i])
+            i += 1
+        else:
+            c.append(b[j])
+            j += 1
+    while i < len(a):
+        c.append(a[i])
+        i += 1
+    while j < len(b):
+        c.append(b[j])
+        j += 1
+    return c
+
+
+def insert_new_node_differs_by_one(parent, tree, bags):
+    child_bag = []
+    assert (len(tree[parent]) <= 1)
+    if len(tree[parent]) == 1:
+        child_bag = bags[tree[parent][0]]
+    parent_bag = bags[parent]
+    diff = diff_of_sorted_lists(parent_bag, child_bag)
+    if len(diff) > 0:
+        diff = diff[:len(diff) - 1]
+        new_bag = intersection_of_sorted_lists(parent_bag, child_bag)
+        new_bag = union_of_sorted_lists(new_bag, diff)
+    else:
+        # the parent is a subset of the child
+        new_bag = child_bag[0:len(parent_bag)+1]
+    bags.append(new_bag)
+    tree.append(list(tree[parent]))
+    tree[parent] = [len(tree) - 1]
+
+
+def make_nice_node(node, tree, bags):
+    if len(tree[node]) == 0:
+        # if it's a leaf and has empty bag then it is nice
+        if len(bags[node]) == 0:
+            print(node, bags[node], tree[node], 'is nice')
+            return
+        # if the bag is not empty then create a new child that differs by one
+        print('making', node, bags[node], tree[node], 'nice')
+        insert_new_node_differs_by_one(node, tree, bags)
+    elif len(tree[node]) == 1:
+        child = tree[node][0]
+        diff_a = diff_of_sorted_lists(bags[node], bags[child])
+        diff_b = diff_of_sorted_lists(bags[child], bags[node])
+        # if it has once child and their symmetric difference is exactly one then it is nice
+        if (len(diff_a) == 1 and len(diff_b) == 0) or (len(diff_a) == 0 and len(diff_b) == 1):
+            print(node, bags[node], tree[node], 'is nice')
+            return
+        # otherwise create a new child that differs by one
+        print('making', node, bags[node], tree[node], 'nice')
+        insert_new_node_differs_by_one(node, tree, bags)
+    elif len(tree[node]) == 2:
+        print(node, bags[node], tree[node], 'is unsupported')
+    else:
+        print(node, bags[node], tree[node], 'is unsupported')
+
+
+def make_nice_tree(tree, bags, root):
+    queue = [root]
+    while len(queue) > 0:
+        next_queue = []
+        for node in queue:
+            make_nice_node(node, tree, bags)
+            for child in tree[node]:
+                next_queue.append(child)
+        queue = next_queue
+    return tree, bags
 
 
 def main():
@@ -88,7 +199,9 @@ def main():
     tree, bags, E, V = read_td_file(args.tdfile, root)
     print(tree)
     print(bags)
-    perform_nice_tree(tree, bags)
+    tree, bags = make_nice_tree(tree, bags, root)
+    print(tree)
+    print(bags)
     # if args.radius is None:
     #    args.radius = random.randrange(1, V)
     # if args.center is None:
