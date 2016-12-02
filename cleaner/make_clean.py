@@ -115,7 +115,6 @@ def remove_edges_on_degree_one_vertices(graph, V, E):
     V = new_v
     E = new_e
     return graph, V, E
-    
 
 
 def reduce_degree_two_vertices(graph, V, E):
@@ -124,13 +123,13 @@ def reduce_degree_two_vertices(graph, V, E):
     new_e = E
     for i in range(1, V + 1):
         if len(graph[i]) == 2:
-            [u,v] = graph[i]
+            [u, v] = graph[i]
             if u not in graph[v]:
                 graph[u].remove(i)
                 graph[v].remove(i)
                 graph[u].append(v)
                 graph[v].append(u)
-                graph[i]=[]
+                graph[i] = []
                 new_v -= 1
                 new_e -= 1
     V = new_v
@@ -145,7 +144,7 @@ def get_largest_component(graph):
     added_to_queue.setall(False)
     added_to_queue_count = 0
     max_component = Component(container_size)
-    cur_component = [] # a list of vertices
+    cur_component = []  # a list of vertices
     max_component = []
     for u in range(1, container_size):
         if not added_to_queue[u]:
@@ -215,12 +214,12 @@ def relabel_graph(graph, selected_vertices):
 
     old_to_new = dict.fromkeys(selected_vertices)
     for i in range(1, len(selected_vertices) + 1):
-        old_to_new[selected_vertices[i-1]] = i
+        old_to_new[selected_vertices[i - 1]] = i
 
     new_graph = [[] for i in range(len(selected_vertices) + 1)]
     for i in range(1, len(selected_vertices) + 1):
         new_graph[i] = list(map(lambda j: old_to_new[j],
-                graph[selected_vertices[i-1]]))
+                                graph[selected_vertices[i - 1]]))
     return new_graph
 
 
@@ -235,29 +234,29 @@ def main():
         start_time = time.time()
     graph, V, E = read_gr_file_and_clean(args.grfile)
     if args.debug:
-        print("file read: V={:d} E={:d}  time: {:f}".format(V,E,time.time()-start_time))
+        print("file read: V={:d} E={:d}  time: {:f}".format(V, E, time.time() - start_time))
         assert_valid_graph(graph, V, E)
     orig_V = V
 
     graph, V, E = remove_edges_on_degree_one_vertices(graph, V, E)
     if args.debug:
-        print("removed degree-1 vertices: V={:d} E={:d}  time: {:f}".format(V,E,time.time()-start_time))
+        print("removed degree-1 vertices: V={:d} E={:d}  time: {:f}".format(V, E, time.time() - start_time))
         assert_valid_graph(graph, V, E)
 
     graph, V, E = reduce_degree_two_vertices(graph, V, E)
     if args.debug:
-        print("reduced degree-2 vertices: V={:d} E={:d}  time: {:f}".format(V,E,time.time()-start_time))
+        print("reduced degree-2 vertices: V={:d} E={:d}  time: {:f}".format(V, E, time.time() - start_time))
         assert_valid_graph(graph, V, E)
 
     graph, Vs, V, E = get_largest_component(graph)
     if args.debug:
-        print("got largest component: V={:d} E={:d}  time: {:f}".format(V,E,time.time()-start_time))
-        #assert_valid_graph(graph, V, E)
+        print("got largest component: V={:d} E={:d}  time: {:f}".format(V, E, time.time() - start_time))
+        # assert_valid_graph(graph, V, E)
 
     if orig_V != V:
         graph = relabel_graph(graph, Vs)
         if args.debug:
-            print("relabeled graph: V={:d} E={:d}  time: {:f}".format(V,E,time.time()-start_time))
+            print("relabeled graph: V={:d} E={:d}  time: {:f}".format(V, E, time.time() - start_time))
             assert_valid_graph(graph, V, E)
     print_gr_file(graph, V, E)
 
