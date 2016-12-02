@@ -170,10 +170,16 @@ def make_nice_node(node, tree, bags):
         if (len(diff_a) == 1 and len(diff_b) == 0) or (len(diff_a) == 0 and len(diff_b) == 1):
             print(node, bags[node], tree[node], 'is nice')
             return
-        # otherwise create a new child that differs by one
         print('making', node, bags[node], tree[node], 'nice')
+        # the child is actually the same as parent then ignore the child
+        # the child will be removed later
+        if len(diff_a) == 0 and len(diff_b) == 0:
+            tree[node] = tree[child]
+            return
+        # otherwise create a new child that differs by one
         insert_new_node_differs_by_one(node, tree, bags)
     elif len(tree[node]) == 2:
+
         print(node, bags[node], tree[node], 'is unsupported')
     else:
         print(node, bags[node], tree[node], 'is unsupported')
