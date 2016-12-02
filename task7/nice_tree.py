@@ -20,13 +20,13 @@ import ntpath
 import sys
 
 
-def read_td_file(tdfile):
+def read_td_file(tdfile, root):
     # Read from tdfile or stdin and store in a suitable data structure
     if tdfile is None:
         file = sys.stdin
     else:
         file = open(tdfile)
-    tree = []
+    graph = []
     bags = []
     for line in file:
         # assumes the .td file is valid
@@ -37,7 +37,7 @@ def read_td_file(tdfile):
             bcount = int(temp[2])
             ecount = int(temp[3])
             vcount = int(temp[4])
-            tree = [[] for i in range(bcount + 1)]
+            graph = [[] for i in range(bcount + 1)]
             bags = [[] for i in range(bcount + 1)]
             continue
         if line[0] == 'b':
@@ -51,11 +51,29 @@ def read_td_file(tdfile):
         v = line.split(' ')
         a = int(v[0])
         b = int(v[1])
-        tree[a].append(b)
-        tree[b].append(a)
+        graph[a].append(b)
+        graph[b].append(a)
     file.close()
-
+    # make the graph directed and using the root as guide
+    tree = graph2tree(graph, root)
     return tree, bags, ecount, vcount
+
+
+def graph2tree(graph, root):
+    used = bitarray.bitarray(len(graph))
+    used.setall(False)
+    tree = [[] for i in range(len(graph))]
+    queue = [root]
+    while len(queue) > 0:
+        next_queue = []
+        for node in queue:
+            used[node] = True
+            for child in graph[node]:
+                if not used[child]:
+                    next_queue.append(child)
+                    tree[node].append(child)
+        queue = next_queue
+    return tree
 
 
 def perform_nice_tree(tree, bags):
@@ -66,7 +84,10 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("tdfile", help=".gr file containing the input graph", nargs='?')
     args = parser.parse_args()
-    tree, bags, E, V = read_td_file(args.tdfile)
+    root = 1
+    tree, bags, E, V = read_td_file(args.tdfile, root)
+    print(tree)
+    print(bags)
     perform_nice_tree(tree, bags)
     # if args.radius is None:
     #    args.radius = random.randrange(1, V)
