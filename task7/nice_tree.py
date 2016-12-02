@@ -1,7 +1,13 @@
 #!/usr/bin/env python3
 
 '''
-Perform BFS on a given graph
+Convert an arbitrary .td file into a nice .td
+A nice .td contains a tree decomposition such that every bag must satisfy one of the following condition:
+  1. It is a leaf and the bag contains the empty set
+  2. It is a node having one child and its bag differ (symmetric difference) by exactly one vertex to the bag of its
+     child
+  3. It is a node having two children and its bag is equal to the bags of its children
+The root of the tree is the vertex 1
 Copyright 2016, Holger Dell
 Licensed under GPLv3.
 '''
