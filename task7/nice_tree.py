@@ -12,11 +12,8 @@ Copyright 2016, Holger Dell
 Licensed under GPLv3.
 '''
 
-import os
 import argparse
 import bitarray
-import random
-import ntpath
 import sys
 
 
@@ -217,10 +214,8 @@ def make_nice_node(node, tree, bags):
     if len(tree[node]) == 0:
         # if it's a leaf and has empty bag then it is nice
         if len(bags[node]) == 0:
-            print(node, bags[node], tree[node], 'is nice')
             return
         # if the bag is not empty then create a new child that differs by one
-        print('making', node, bags[node], tree[node], 'nice')
         insert_new_node_differs_by_one(node, tree, bags)
     elif len(tree[node]) == 1:
         child = tree[node][0]
@@ -228,9 +223,7 @@ def make_nice_node(node, tree, bags):
         diff_b = diff_of_sorted_lists(bags[child], bags[node])
         # if it has once child and their symmetric difference is exactly one then it is nice
         if (len(diff_a) == 1 and len(diff_b) == 0) or (len(diff_a) == 0 and len(diff_b) == 1):
-            print(node, bags[node], tree[node], 'is nice')
             return
-        print('making', node, bags[node], tree[node], 'nice')
         # if the child is actually the same as parent then ignore the child
         # the child will be removed later
         if len(diff_a) == 0 and len(diff_b) == 0:
@@ -246,14 +239,11 @@ def make_nice_node(node, tree, bags):
                 break
         # if it has two children and their bag are the same as parent's then it is nice
         if child_equal:
-            print(node, bags[node], tree[node], 'is nice')
             return
         # if not, then insert (at most) two clones as children, set the previous children as grand children
-        print('making', node, bags[node], tree[node], 'nice')
         insert_clones_as_children(node, tree, bags)
     else:
         # if children is more then 2 then insert two clones as children, set the previous children as grand children
-        print('making', node, bags[node], tree[node], 'nice')
         insert_clones_as_children(node, tree, bags)
 
 
@@ -269,24 +259,31 @@ def make_nice_tree(tree, bags, root):
     return tree, bags
 
 
+def print_td_file(tree, bags, vcount, header=None):
+    if header is not None:
+        print(header)
+    bcount = len(tree) - 1
+    ecount = sum(len(tree[v]) for v in range(len(tree)))
+    print('s td', bcount, ecount, vcount)
+    for i in range(1, len(bags)):
+        s = 'b ' + str(i)
+        for j in bags[i]:
+            s += ' ' + str(j)
+        print(s)
+    for i in range(1, len(tree)):
+        for j in tree[i]:
+            print(min(i, j), max(i, j))
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("tdfile", help=".gr file containing the input graph", nargs='?')
     args = parser.parse_args()
     root = 1
     tree, bags, E, V = read_td_file(args.tdfile, root)
-    print(tree)
-    print(bags)
     tree, bags = make_nice_tree(tree, bags, root)
     tree, bags = remove_ignored_nodes(tree, bags)
-    print(tree)
-    print(bags)
-    # if args.radius is None:
-    #    args.radius = random.randrange(1, V)
-    # if args.center is None:
-    #    args.center = random.randrange(1, V + 1)
-    # newgraph, V, E = perform_BFS(graph, V, E, args.center, args.radius)
-    # print_gr_file(newgraph, E, get_header(args.grfile, args.center, args.radius))
+    print_td_file(tree, bags, V)
 
 
 if __name__ == '__main__':
