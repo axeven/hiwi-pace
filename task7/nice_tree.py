@@ -147,14 +147,14 @@ def insert_new_node_differs_by_one(parent, tree, bags):
         new_bag = union_of_sorted_lists(new_bag, diff)
     else:
         # the parent is a subset of the child
-        new_bag = child_bag[0:len(parent_bag)+1]
+        new_bag = child_bag[0:len(parent_bag) + 1]
     bags.append(new_bag)
     tree.append(list(tree[parent]))
     tree[parent] = [len(tree) - 1]
 
 
 def insert_clones_as_children(parent, tree, bags):
-    assert(len(tree[parent]) >= 2)
+    assert (len(tree[parent]) >= 2)
     add_left = True
     add_right = True
     if len(tree[parent]) == 2:
@@ -162,13 +162,13 @@ def insert_clones_as_children(parent, tree, bags):
             add_left = False
         if bags[tree[parent][1]] == bags[parent]:
             add_right = False
-    assert(add_left or add_right)
+    assert (add_left or add_right)
     children_left = []
     children_right = []
     if add_left and add_right:
-        children_left = tree[parent][0:int(len(tree[parent])/2)]
-        children_right = tree[parent][int(len(tree[parent])/2):]
-        tree[parent] = [-1, -1] # dummies
+        children_left = tree[parent][0:int(len(tree[parent]) / 2)]
+        children_right = tree[parent][int(len(tree[parent]) / 2):]
+        tree[parent] = [-1, -1]  # dummies
     elif add_left:
         children_left = [tree[parent][0]]
     elif add_right:
@@ -181,6 +181,36 @@ def insert_clones_as_children(parent, tree, bags):
         bags.append(list(bags[parent]))
         tree.append(children_right)
         tree[parent][1] = len(tree) - 1
+
+
+def relabel_graph(graph, selected_vertices):
+    # print('Relabeling ...')
+    selected_vertices.sort()
+
+    old_to_new = dict.fromkeys(selected_vertices)
+    for i in range(1, len(selected_vertices) + 1):
+        old_to_new[selected_vertices[i - 1]] = i
+
+    new_graph = [[] for i in range(len(selected_vertices) + 1)]
+    for i in range(1, len(selected_vertices) + 1):
+        new_graph[i] = list(map(lambda j: old_to_new[j],
+                                graph[selected_vertices[i - 1]]))
+    return new_graph
+
+
+def remove_ignored_nodes(tree, bags):
+    # ignored nodes are identified by having 0 child but non empty bag after the make_nice operation
+    selected_vertices = []
+    for v in range(1, len(tree)):
+        if len(tree[v]) == 0 and len(bags[v]) > 0:
+            continue
+        selected_vertices.append(v)
+    if len(selected_vertices) == len(tree) - 1:
+        return tree, bags
+    tree = relabel_graph(tree, selected_vertices)
+    bags = [bags[i] for i in selected_vertices]
+    bags = [[]] + bags
+    return tree, bags
 
 
 def make_nice_node(node, tree, bags):
@@ -205,8 +235,8 @@ def make_nice_node(node, tree, bags):
         # the child will be removed later
         if len(diff_a) == 0 and len(diff_b) == 0:
             tree[node] = tree[child]
-            return
-        # otherwise create a new child that differs by one
+            tree[child] = []
+        # create a new child that differs by one
         insert_new_node_differs_by_one(node, tree, bags)
     elif len(tree[node]) == 2:
         child_equal = True
@@ -248,6 +278,7 @@ def main():
     print(tree)
     print(bags)
     tree, bags = make_nice_tree(tree, bags, root)
+    tree, bags = remove_ignored_nodes(tree, bags)
     print(tree)
     print(bags)
     # if args.radius is None:
