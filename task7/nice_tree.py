@@ -153,6 +153,36 @@ def insert_new_node_differs_by_one(parent, tree, bags):
     tree[parent] = [len(tree) - 1]
 
 
+def insert_clones_as_children(parent, tree, bags):
+    assert(len(tree[parent]) >= 2)
+    add_left = True
+    add_right = True
+    if len(tree[parent]) == 2:
+        if bags[tree[parent][0]] == bags[parent]:
+            add_left = False
+        if bags[tree[parent][1]] == bags[parent]:
+            add_right = False
+    assert(add_left or add_right)
+    children_left = []
+    children_right = []
+    if add_left and add_right:
+        children_left = tree[parent][0:int(len(tree[parent])/2)]
+        children_right = tree[parent][int(len(tree[parent])/2):]
+        tree[parent] = [-1, -1] # dummies
+    elif add_left:
+        children_left = [tree[parent][0]]
+    elif add_right:
+        children_right = [tree[parent][1]]
+    if add_left:
+        bags.append(list(bags[parent]))
+        tree.append(children_left)
+        tree[parent][0] = len(tree) - 1
+    if add_right:
+        bags.append(list(bags[parent]))
+        tree.append(children_right)
+        tree[parent][1] = len(tree) - 1
+
+
 def make_nice_node(node, tree, bags):
     if len(tree[node]) == 0:
         # if it's a leaf and has empty bag then it is nice
@@ -171,7 +201,7 @@ def make_nice_node(node, tree, bags):
             print(node, bags[node], tree[node], 'is nice')
             return
         print('making', node, bags[node], tree[node], 'nice')
-        # the child is actually the same as parent then ignore the child
+        # if the child is actually the same as parent then ignore the child
         # the child will be removed later
         if len(diff_a) == 0 and len(diff_b) == 0:
             tree[node] = tree[child]
@@ -179,10 +209,22 @@ def make_nice_node(node, tree, bags):
         # otherwise create a new child that differs by one
         insert_new_node_differs_by_one(node, tree, bags)
     elif len(tree[node]) == 2:
-
-        print(node, bags[node], tree[node], 'is unsupported')
+        child_equal = True
+        for child in tree[node]:
+            if bags[node] != bags[child]:
+                child_equal = False
+                break
+        # if it has two children and their bag are the same as parent's then it is nice
+        if child_equal:
+            print(node, bags[node], tree[node], 'is nice')
+            return
+        # if not, then insert (at most) two clones as children, set the previous children as grand children
+        print('making', node, bags[node], tree[node], 'nice')
+        insert_clones_as_children(node, tree, bags)
     else:
-        print(node, bags[node], tree[node], 'is unsupported')
+        # if children is more then 2 then insert two clones as children, set the previous children as grand children
+        print('making', node, bags[node], tree[node], 'nice')
+        insert_clones_as_children(node, tree, bags)
 
 
 def make_nice_tree(tree, bags, root):
