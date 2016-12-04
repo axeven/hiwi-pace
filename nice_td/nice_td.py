@@ -32,7 +32,7 @@ def read_td_file(tdfile, root):
         if line[0] == 's':
             temp = line.split(' ')
             bcount = int(temp[2])
-            ecount = int(temp[3])
+            twidth = int(temp[3])
             vcount = int(temp[4])
             graph = [[] for i in range(bcount + 1)]
             bags = [[] for i in range(bcount + 1)]
@@ -51,7 +51,7 @@ def read_td_file(tdfile, root):
     file.close()
     # make the graph directed by using the root as guide
     tree = graph2tree(graph, root)
-    return tree, bags, ecount, vcount
+    return tree, bags, twidth, vcount
 
 
 def graph2tree(graph, root):
@@ -263,8 +263,8 @@ def print_td_file(tree, bags, vcount, header=None):
     if header is not None:
         print(header)
     bcount = len(tree) - 1
-    ecount = sum(len(tree[v]) for v in range(len(tree)))
-    print('s td', bcount, ecount, vcount)
+    twidth = max(len(bags[v]) for v in range(len(tree)))
+    print('s td', bcount, twidth, vcount)
     for i in range(1, len(bags)):
         s = 'b ' + str(i)
         for j in bags[i]:
@@ -277,10 +277,10 @@ def print_td_file(tree, bags, vcount, header=None):
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("tdfile", help=".gr file containing the input graph", nargs='?')
+    parser.add_argument("tdfile", help=".td file containing the input graph", nargs='?')
     args = parser.parse_args()
     root = 1
-    tree, bags, E, V = read_td_file(args.tdfile, root)
+    tree, bags, TW, V = read_td_file(args.tdfile, root)
     tree, bags = make_nice_tree(tree, bags, root)
     tree, bags = remove_ignored_nodes(tree, bags)
     print_td_file(tree, bags, V)
