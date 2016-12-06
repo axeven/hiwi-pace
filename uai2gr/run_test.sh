@@ -34,12 +34,11 @@ do
     tput setaf 1;
     echo "FAIL" "$file" "(invalid gr)"
   fi
+  tput sgr0;
 done
 }
 
 do_test 0
-
-tput sgr0;
 
 echo
 echo "$NUM_PASSED of $NUM_ALL tests passed."
