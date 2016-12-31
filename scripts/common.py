@@ -3,6 +3,8 @@ import glob
 import os
 import subprocess
 import sys
+import hashlib
+from itertools import takewhile, repeat
 
 
 def get_folder_list(folder):
@@ -109,4 +111,23 @@ def get_file_size(file):
     if os.path.isfile(file):
         stats = os.stat(file)
         return stats.st_size
+    return 0
+
+
+def get_sha1_checksum(file):
+    BUFFER = 2 ** 16  # 64KB buffer
+    sha1 = hashlib.sha1()
+    with open(file, 'rb') as f:
+        while True:
+            data = f.read(BUFFER)
+            if not data:
+                break
+            sha1.update(data)
+    return sha1.hexdigest()
+
+
+def get_line_count(file):
+    with open(file, 'rb') as f:
+        bufgen = takewhile(lambda x: x, (f.raw.read(1024 * 1024) for _ in repeat(None)))
+        return sum(buf.count(b'\n') for buf in bufgen)
     return 0
